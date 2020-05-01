@@ -160,15 +160,14 @@ def tryDetect():
 			image_h = img_shape[1]
 
 			# Calculate the new size for the images.
-			new_w = round(image_w / image_scale)
-			new_h = round(image_h / image_scale)
-			newsize = (new_h, new_w)
+			resize_w = round(image_w / image_scale)
+			resize_h = round(image_h / image_scale)
 
 			# Resize the image.
-			image_resized = cv2.resize(source_img, newsize, interpolation = cv2.INTER_CUBIC)
+			image_resized = cv2.resize(source_img, (resize_h, resize_w), interpolation = cv2.INTER_CUBIC)
 
 			# Write the image for debugging.
-			image_test = filename + '_' + str(new_w) + 'x' + str(new_h) + extension
+			image_test = filename + '_' + str(resize_w) + 'x' + str(resize_h) + extension
 			cv2.imwrite(image_test, image_resized)
 
 			# Send the image to the 'dectectFaces' method.
