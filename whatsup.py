@@ -33,14 +33,25 @@
 import sys
 import os
 import cv2
+import math
 import numpy as np;
 
 def detectFaces(small_img, loadedCascade):
-	tries = 0 # 4 shots at getting faces.
 
+	tries = 0
+
+	side = math.sqrt(small_img.size)
+	minlen = int(side / 20)
+	maxlen = int(side / 2)
+	flags = cv2.CASCADE_DO_CANNY_PRUNING
+	# flags = cv2.CASCADE_SCALE_IMAGE
+
+	# 4 shots at getting faces.
 	while tries < 4:
 		# faces = cv2.HaarDetectObjects(small_img, loadedCascade, cv2.CreateMemStorage(0), scale_factor = 1.2, min_neighbors = 2, flags = cv2.CV_HAAR_DO_CANNY_PRUNING)
-		faces = loadedCascade.detectMultiScale(small_img, 1.2, 2, cv2.CASCADE_SCALE_IMAGE)
+		# faces = loadedCascade.detectMultiScale(small_img, 1.3, 6, cv2.CASCADE_SCALE_IMAGE)
+		faces = loadedCascade.detectMultiScale(small_img, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
+		print(faces)
 		if (len(faces) > 0):
 			if (sys.argv[1] == '--debug'):
 				for i in faces:
