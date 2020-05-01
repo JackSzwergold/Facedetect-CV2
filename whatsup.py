@@ -13,7 +13,7 @@
 ################################################################################
 
 ################################################################################
-# This script reads in a file and tries to determine which orientation is correct
+# This script reads in a file and counter to determine which orientation is correct
 # by looking for faces in the photos
 # It starts with the existing orientation, then rotates it 90 degrees at a time until
 # it has either tried all 4 directions or until it finds a face
@@ -38,7 +38,7 @@ import numpy as np;
 
 def detectFaces(small_img, cascade):
 
-	tries = 0
+	counter = 0
 
 	side = math.sqrt(small_img.size)
 	minlen = int(side / 20)
@@ -47,19 +47,12 @@ def detectFaces(small_img, cascade):
 	# flags = cv2.CASCADE_SCALE_IMAGE
 
 	# 4 shots at getting faces.
-	while tries < 4:
-		# faces = cv2.HaarDetectObjects(small_img, cascade, cv2.CreateMemStorage(0), scale_factor = 1.2, min_neighbors = 2, flags = cv2.CV_HAAR_DO_CANNY_PRUNING)
-		# faces = cascade.detectMultiScale(small_img, 1.3, 6, cv2.CASCADE_SCALE_IMAGE)
+	while counter < 4:
 		faces = cascade.detectMultiScale(small_img, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
 		print(faces)
 		if (len(faces) > 0):
-			# if (sys.argv[1] == '--debug'):
-			# 	for i in faces:
-			# 		cv2.Rectangle(small_img, (i[0][0], i[0][1]), (i[0][0] + i[0][2], i[0][1] + i[0][3]), cv2.RGB(255, 255, 255), 3, 8, 0)
-			# 	cv2.NamedWindow("Faces")
-			# 	cv2.ShowImage("Faces", small_img)
-			# 	cv2.WaitKey(1000)
-			return tries * 90
+
+			return counter * 90
 
 		# The rotation routine:
 		# tmp_mat = cv2.GetMat(small_img)
@@ -70,23 +63,25 @@ def detectFaces(small_img, cascade):
 		tmp_mat = cv2.moments(small_img_filtered, 0)
 
 		print(tmp_mat)
-		exit()
+		# exit()
+		#
+		# # Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
+		# # tmp_dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1)
+		# tmp_dst_mat = np.zeros((tmp_mat.rows, tmp_mat.cols, 3), np.uint8)
+		#
+		# # Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
+		# # dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1)
+		# dst_mat = np.zeros((tmp_mat.rows, tmp_mat.cols, 3), np.uint8)
+		#
+		# # To rotate 90 clockwise, we transpose, then flip on Y axis
+		# cv2.transpose(small_img, tmp_dst_mat) # Transpose it
+		# cv2.flip(tmp_dst_mat, dst_mat, flipMode= 1) # flip it
+		#
+		# # put it back in small_img so we can try to detect faces again
+		# small_img = cv2.getImage(dst_mat)
 
-		# Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
-		# tmp_dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1)
-		tmp_dst_mat = np.zeros((tmp_mat.rows, tmp_mat.cols, 3), np.uint8)
-
-		# Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
-		# dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1)
-		dst_mat = np.zeros((tmp_mat.rows, tmp_mat.cols, 3), np.uint8)
-
-		# To rotate 90 clockwise, we transpose, then flip on Y axis
-		cv2.transpose(small_img, tmp_dst_mat) # Transpose it
-		cv2.flip(tmp_dst_mat, dst_mat, flipMode= 1) # flip it
-
-		# put it back in small_img so we can try to detect faces again
-		small_img = cv2.getImage(dst_mat)
-		tries = tries + 1
+		# Increment the counter.
+		counter = counter + 1
 
 	return False
 
@@ -179,7 +174,7 @@ def trydetect():
 			# small_img = cv2.CreateImage(newsize, 8, 1)
 			# cv2.Resize(source_img, small_img, cv2.CV_INTER_LINEAR)
 			small_img = cv2.resize(source_img, newsize, interpolation = cv2.INTER_CUBIC)
-			# cv2.imwrite('foo.jpg', small_img)
+			cv2.imwrite('foo.jpg', small_img)
 			results = detectFaces(small_img, cascade)
 
 			if results is not False:
