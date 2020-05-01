@@ -136,10 +136,10 @@ def tryDetect():
 	image_path = os.path.abspath(filename)
 
 	# print(os.path.dirname(image_path))
-	print(os.path.basename(image_path))
+	# print(os.path.basename(image_path))
 	# print(filename)
 	# print(pathlib.Path(image_path).suffix)
-	print(pathlib.Path(image_path).suffix)
+	print(pathlib.Path(filename))
 	exit()
 
 	# Load the image into the scriupt.
