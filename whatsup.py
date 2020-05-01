@@ -130,16 +130,17 @@ def detectBrightest(image):
 def tryDetect():
 
 	# Set the filename from the input argument.
-	filename = sys.argv[-1]
+	filename_full = sys.argv[-1]
+
+	# Set the filename and extension.
+	filename = pathlib.Path(filename_full).stem
+	extension = pathlib.Path(filename_full).suffix
 
 	# Set the image path.
-	image_path = os.path.abspath(filename)
+	image_path = os.path.abspath(filename_full)
 
-	# print(os.path.dirname(image_path))
-	# print(os.path.basename(image_path))
-	# print(filename)
-	# print(pathlib.Path(image_path).suffix)
-	print(pathlib.Path(filename))
+
+	print(filename)
 	exit()
 
 	# Load the image into the scriupt.
