@@ -16,8 +16,10 @@
 # Output: The number of degrees it should be rotated clockwise to orient the faces correctly.
 #
 ################################################################################
+
+################################################################################
 #
-# As it describes itself:
+# As the author describes it:
 #
 # “This script reads in a file and counter to determine which orientation is
 # correct by looking for faces in the photos. It starts with the existing
