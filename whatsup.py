@@ -139,10 +139,6 @@ def tryDetect():
 	# Set the image path.
 	image_path = os.path.abspath(filename_full)
 
-
-	print(filename)
-	exit()
-
 	# Load the image into the scriupt.
 	cv2.IMREAD_GRAYSCALE = 0
 	source_img = cv2.imread(image_path) # the image itself
@@ -160,19 +156,20 @@ def tryDetect():
 
 			# Get the dimensions of the image.
 			img_shape = np.shape(source_img)
-			img_w = img_shape[0]
-			img_h = img_shape[1]
+			image_w = img_shape[0]
+			image_h = img_shape[1]
 
 			# Calculate the new size for the images.
-			new_w = round(img_w / image_scale)
-			new_h = round(img_h / image_scale)
+			new_w = round(image_w / image_scale)
+			new_h = round(image_h / image_scale)
 			newsize = (new_h, new_w)
 
 			# Resize the image.
 			image_resized = cv2.resize(source_img, newsize, interpolation = cv2.INTER_CUBIC)
 
 			# Write the image for debugging.
-			cv2.imwrite('test_' + str(new_w) + 'x' + str(new_h) + '.jpg', image_resized)
+			image_test = filename + str(new_w) + 'x' + str(new_h) + extension
+			cv2.imwrite(image_test, image_resized)
 
 			# Send the image to the 'dectectFaces' method.
 			results = detectFaces(image_resized, cc)
