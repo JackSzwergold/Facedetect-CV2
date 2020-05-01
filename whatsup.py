@@ -49,9 +49,6 @@ def detectFaces(image, cc):
 	min_length = int(side / 20)
 	max_length = int(side / 2)
 
-	# rotations_to_use = ('ROTATE_90_CLOCKWISE', 'ROTATE_90_COUNTERCLOCKWISE', 'ROTATE_180')
-	rotations_to_use = (cv2.ROTATE_90_CLOCKWISE)
-
 	############################################################################
 	# Set the CV2 flags.
 	flags = cv2.CASCADE_DO_CANNY_PRUNING
@@ -59,11 +56,13 @@ def detectFaces(image, cc):
 
 	############################################################################
 	# Roll through the rotations to use.
-	while counter > 0:
+	while counter > 4:
 
 		########################################################################
 		# Attempt to detect some faces.
 		faces = cc.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+
+		print (counter)
 
 		########################################################################
 		# If a face is found, do this.
@@ -73,7 +72,7 @@ def detectFaces(image, cc):
 
 		########################################################################
 		# Rotate the image.
-		image = cv2.rotate(image, this_rotation)
+		image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
 
 		########################################################################
 		# Increment the counter.
