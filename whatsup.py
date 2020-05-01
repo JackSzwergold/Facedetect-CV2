@@ -5,7 +5,7 @@
 # \ \      / / |__   __ _| |_ ___ _   _ _ __
 #  \ \ /\ / /| '_ \ / _` | __/ __| | | | '_ \
 #   \ V  V / | | | | (_| | |_\__ \ |_| | |_) |
-#    \_/\_/  |_| |_|\__, _|\__|___/\__, _| .__/
+#    \_/\_/  |_| |_|\__,_|\__|___/\__,_| .__/
 #                                      |_|
 #
 # 2020-04-30: An updated version of Stuporglue’s “Whatsup” script.
@@ -36,7 +36,7 @@ import cv2
 import math
 import numpy as np;
 
-def detectFaces(small_img, loadedCascade):
+def detectFaces(small_img, cascade):
 
 	tries = 0
 
@@ -48,9 +48,9 @@ def detectFaces(small_img, loadedCascade):
 
 	# 4 shots at getting faces.
 	while tries < 4:
-		# faces = cv2.HaarDetectObjects(small_img, loadedCascade, cv2.CreateMemStorage(0), scale_factor = 1.2, min_neighbors = 2, flags = cv2.CV_HAAR_DO_CANNY_PRUNING)
-		# faces = loadedCascade.detectMultiScale(small_img, 1.3, 6, cv2.CASCADE_SCALE_IMAGE)
-		faces = loadedCascade.detectMultiScale(small_img, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
+		# faces = cv2.HaarDetectObjects(small_img, cascade, cv2.CreateMemStorage(0), scale_factor = 1.2, min_neighbors = 2, flags = cv2.CV_HAAR_DO_CANNY_PRUNING)
+		# faces = cascade.detectMultiScale(small_img, 1.3, 6, cv2.CASCADE_SCALE_IMAGE)
+		faces = cascade.detectMultiScale(small_img, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
 		print(faces)
 		if (len(faces) > 0):
 			if (sys.argv[1] == '--debug'):
@@ -163,7 +163,7 @@ def trydetect():
 		)
 
 	for CASCADE in CASCADES:
-		loadedCascade = cv2.CascadeClassifier(os.path.join(DATA_DIR, CASCADE))
+		cascade = cv2.CascadeClassifier(os.path.join(DATA_DIR, CASCADE))
 		image_scale = 4
 
 		 # Try 4 different sizes of our photo
@@ -180,7 +180,7 @@ def trydetect():
 			# cv2.Resize(source_img, small_img, cv2.CV_INTER_LINEAR)
 			small_img = cv2.resize(source_img, newsize, interpolation = cv2.INTER_CUBIC)
 			# cv2.imwrite('foo.png', small_img)
-			returnme = detectFaces(small_img, loadedCascade)
+			returnme = detectFaces(small_img, cascade)
 
 			if returnme is not False:
 				return returnme
