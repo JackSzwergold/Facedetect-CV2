@@ -39,7 +39,8 @@ def detectFaces(small_img, loadedCascade):
 	tries = 0 # 4 shots at getting faces.
 
 	while tries < 4:
-		faces = xcv2.HaarDetectObjects(small_img, loadedCascade, cv2.CreateMemStorage(0), scale_factor = 1.2, min_neighbors = 2, flags = cv2.CV_HAAR_DO_CANNY_PRUNING)
+		# faces = cv2.HaarDetectObjects(small_img, loadedCascade, cv2.CreateMemStorage(0), scale_factor = 1.2, min_neighbors = 2, flags = cv2.CV_HAAR_DO_CANNY_PRUNING)
+		faces = loadedCascade.detectMultiScale(small_img, 1.2, 2, cv2.CASCADE_SCALE_IMAGE)
 		if (len(faces) > 0):
 			if (sys.argv[1] == '--debug'):
 				for i in faces:
@@ -51,9 +52,11 @@ def detectFaces(small_img, loadedCascade):
 
 		# The rotation routine:
 		tmp_mat = cv2.GetMat(small_img)
-		tmp_dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1) # Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
-		dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1) # Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
+		# Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
+		tmp_dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1)
 
+		# Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
+		dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1)
 		# To rotate 90 clockwise, we transpose, then flip on Y axis
 		cv2.Transpose(small_img, tmp_dst_mat) # Transpose it
 		cv2.Flip(tmp_dst_mat, dst_mat, flipMode= 1) # flip it
