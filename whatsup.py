@@ -56,22 +56,19 @@ def detectFaces(image, cc):
 
 	############################################################################
 	# Roll through the rotations to use.
-	while counter > 4:
+	while counter < 4:
 
 		########################################################################
 		# Attempt to detect some faces.
 		faces = cc.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
 
-		print (counter)
-
 		########################################################################
-		# If a face is found, do this.
+		# If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
 		if (len(faces) > 0):
-			return faces
-			# return counter * 90
+			return counter * 90
 
 		########################################################################
-		# Rotate the image.
+		# Rotate the image 90 degrees clockwise.
 		image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
 
 		########################################################################
