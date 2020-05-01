@@ -125,7 +125,7 @@ def detectBrightest(image):
 def trydetect():
 	# Load some things that we'll use during each loop so we don't keep re-creating them
 	cv2.IMREAD_GRAYSCALE = 0
-	grayscale = cv2.imread(os.path.abspath(sys.argv[-1])) # the image itself
+	source_img = cv2.imread(os.path.abspath(sys.argv[-1])) # the image itself
 	# Get more at: https://code.ros.org/svn/opencv/tags/latest_tested_snapshot/opencv/data/haarCASCADES/
 	# DATA_DIR = cv2.data.haarCASCADES
 	DATA_DIR = '/usr/local/lib/python3.7/site-packages/cv2/data/'
@@ -139,14 +139,14 @@ def trydetect():
 		loadedCascade = cv2.CascadeClassifier(os.path.join(DATA_DIR, CASCADE))
 		image_scale = 4
 		while image_scale > 0: # Try 4 different sizes of our photo
-			img_shape = np.shape(grayscale)
+			img_shape = np.shape(source_img)
 			img_w = img_shape[0]
 			img_h = img_shape[1]
 			newsize = (round (img_w / image_scale), round(img_h / image_scale)) # find new size
 
 			# small_img = cv2.CreateImage(newsize, 8, 1)
-			# cv2.Resize(grayscale, small_img, cv2.CV_INTER_LINEAR)
-			small_img = cv2.resize(grayscale, newsize, interpolation = cv2.INTER_CUBIC)
+			# cv2.Resize(source_img, small_img, cv2.CV_INTER_LINEAR)
+			small_img = cv2.resize(source_img, newsize, interpolation = cv2.INTER_CUBIC)
 
 			returnme = detectFaces(small_img, loadedCascade)
 
@@ -155,7 +155,7 @@ def trydetect():
 
 			image_scale = image_scale - 1
 
-	return detectBrightest(grayscale) # no faces found, use the brightest side for orientation instead
+	return detectBrightest(source_img) # no faces found, use the brightest side for orientation instead
 
 
 # Usage Check
