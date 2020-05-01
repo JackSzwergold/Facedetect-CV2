@@ -179,11 +179,11 @@ def trydetect():
 			# small_img = cv2.CreateImage(newsize, 8, 1)
 			# cv2.Resize(source_img, small_img, cv2.CV_INTER_LINEAR)
 			small_img = cv2.resize(source_img, newsize, interpolation = cv2.INTER_CUBIC)
-			cv2.imwrite('foo.png', small_img)
-			returnme = detectFaces(small_img, cascade)
+			# cv2.imwrite('foo.jpg', small_img)
+			results = detectFaces(small_img, cascade)
 
-			if returnme is not False:
-				return returnme
+			if results is not False:
+				return results
 
 			image_scale = image_scale - 1
 
