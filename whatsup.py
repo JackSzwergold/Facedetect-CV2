@@ -36,11 +36,11 @@ import cv2
 import math
 import numpy as np;
 
-def detectFaces(small_img, cc):
+def detectFaces(image_resized, cc):
 
 	counter = 0
 
-	side = math.sqrt(small_img.size)
+	side = math.sqrt(image_resized.size)
 	minlen = int(side / 20)
 	maxlen = int(side / 2)
 	flags = cv2.CASCADE_DO_CANNY_PRUNING
@@ -48,17 +48,17 @@ def detectFaces(small_img, cc):
 
 	# 4 shots at getting faces.
 	while counter < 4:
-		faces = cc.detectMultiScale(small_img, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
+		faces = cc.detectMultiScale(image_resized, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
 		print(faces)
 		if (len(faces) > 0):
 
 			return counter * 90
 
 		# The rotation routine:
-		# tmp_mat = cv2.GetMat(small_img)
+		# tmp_mat = cv2.GetMat(image_resized)
 		# kernel = np.ones((5,5),np.float32)/25
-		# small_img_filtered = cv2.filter2D(small_img, cv2.CV_8U, kernel.transpose())
-		small_img_blur = cv2.GaussianBlur(small_img, (5, 5), 0)
+		# small_img_filtered = cv2.filter2D(image_resized, cv2.CV_8U, kernel.transpose())
+		small_img_blur = cv2.GaussianBlur(image_resized, (5, 5), 0)
 		small_img_filtered, dimensions = cv2.threshold(small_img_blur, 0, 255, cv2.THRESH_BINARY)
 		tmp_mat = cv2.moments(small_img_filtered, 0)
 
@@ -74,11 +74,11 @@ def detectFaces(small_img, cc):
 		# dst_mat = np.zeros((tmp_mat.rows, tmp_mat.cols, 3), np.uint8)
 		#
 		# # To rotate 90 clockwise, we transpose, then flip on Y axis
-		# cv2.transpose(small_img, tmp_dst_mat) # Transpose it
+		# cv2.transpose(image_resized, tmp_dst_mat) # Transpose it
 		# cv2.flip(tmp_dst_mat, dst_mat, flipMode= 1) # flip it
 		#
-		# # put it back in small_img so we can try to detect faces again
-		# small_img = cv2.getImage(dst_mat)
+		# # put it back in image_resized so we can try to detect faces again
+		# image_resized = cv2.getImage(dst_mat)
 
 		# Increment the counter.
 		counter = counter + 1
@@ -90,16 +90,16 @@ def detectFaces(small_img, cc):
 def detectBrightest(image):
 	image_scale = 4 # This scale factor doesn't matter much. It just gives us less pixels to iterate over later
 	newsize = (cv2.Round(image.width/image_scale), cv2.Round(image.height/image_scale)) # find new size
-	small_img = cv2.CreateImage(newsize, 8, 1)
-	cv2.Resize(image, small_img, cv2.CV_INTER_LINEAR)
+	image_resized = cv2.CreateImage(newsize, 8, 1)
+	cv2.Resize(image, image_resized, cv2.CV_INTER_LINEAR)
 
 	# Take the top 1/3, right 1/3, etc. to compare for brightness
-	width = small_img.width
-	height = small_img.height
-	top = small_img[0:height/3, 0:width]
-	right = small_img[0:height, (width/3*2):width]
-	left = small_img[0:height, 0:width/3]
-	bottom = small_img[(height/3*2):height, 0:height]
+	width = image_resized.width
+	height = image_resized.height
+	top = image_resized[0:height/3, 0:width]
+	right = image_resized[0:height, (width/3*2):width]
+	left = image_resized[0:height, 0:width/3]
+	bottom = image_resized[(height/3*2):height, 0:height]
 
 	sides = {'top':top, 'left':left, 'bottom':bottom, 'right':right}
 
@@ -116,9 +116,9 @@ def detectBrightest(image):
 		if sidelum > greatest:
 			winning = name
 
-	cv2.Rectangle(small_img, first, second, cv2.RGB(125, 125, 125), 3, 8, 0)
+	cv2.Rectangle(image_resized, first, second, cv2.RGB(125, 125, 125), 3, 8, 0)
 	cv2.NamedWindow("Faces")
-	cv2.ShowImage("Faces", small_img)
+	cv2.ShowImage("Faces", image_resized)
 	cv2.WaitKey(3000)
 
 	returns = {'top':0, 'left':90, 'bottom':180, 'right':270}
@@ -144,20 +144,24 @@ def trydetect():
 		image_scale = 4
 		while image_scale > 0:
 
+			# Get the dimensions of the image.
 			img_shape = np.shape(source_img)
 			img_w = img_shape[0]
 			img_h = img_shape[1]
 
-			# calculate the new size.
+			# Calculate the new size for the images.
 			new_w = round(img_w / image_scale)
 			new_h = round(img_h / image_scale)
 			newsize = (new_h, new_w)
 
-			# small_img = cv2.CreateImage(newsize, 8, 1)
-			# cv2.Resize(source_img, small_img, cv2.CV_INTER_LINEAR)
-			small_img = cv2.resize(source_img, newsize, interpolation = cv2.INTER_CUBIC)
-			cv2.imwrite('test_' + str(new_w) + 'x' + str(new_h) + '.jpg', small_img)
-			results = detectFaces(small_img, cc)
+			# Resize the image.
+			image_resized = cv2.resize(source_img, newsize, interpolation = cv2.INTER_CUBIC)
+
+			# Write the image for debugging.
+			cv2.imwrite('test_' + str(new_w) + 'x' + str(new_h) + '.jpg', image_resized)
+
+			# Send the image to the 'dectectFaces' method.
+			results = detectFaces(image_resized, cc)
 
 			if results is not False:
 				return results
