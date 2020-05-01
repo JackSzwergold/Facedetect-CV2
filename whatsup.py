@@ -144,13 +144,17 @@ def trydetect():
 			img_h = img_shape[1]
 			newsize = (round (img_w / image_scale), round(img_h / image_scale)) # find new size
 
-			small_img = cv2.CreateImage(newsize, 8, 1)
-			cv2.Resize(grayscale, small_img, cv2.CV_INTER_LINEAR)
+			# small_img = cv2.CreateImage(newsize, 8, 1)
+			# cv2.Resize(grayscale, small_img, cv2.CV_INTER_LINEAR)
+			small_img = cv2.resize(src, newsize, interpolation = cv2.INTER_CUBIC)
+
 			returnme = detectFaces(small_img, loadedCascade)
+
 			if returnme is not False:
 				return returnme
 
 			image_scale = image_scale - 1
+
 	return detectBrightest(grayscale) # no faces found, use the brightest side for orientation instead
 
 
