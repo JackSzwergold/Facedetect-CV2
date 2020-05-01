@@ -50,7 +50,7 @@ def detectFaces(image, cc):
 	max_length = int(side / 2)
 
 	# rotations_to_use = ('ROTATE_90_CLOCKWISE', 'ROTATE_90_COUNTERCLOCKWISE', 'ROTATE_180')
-	rotations_to_use = (cv2.ROTATE_90_CLOCKWISE, cv2.ROTATE_90_COUNTERCLOCKWISE)
+	rotations_to_use = (cv2.ROTATE_90_CLOCKWISE)
 
 	############################################################################
 	# Set the CV2 flags.
@@ -59,7 +59,7 @@ def detectFaces(image, cc):
 
 	############################################################################
 	# Roll through the rotations to use.
-	for this_rotation in rotations_to_use:
+	while counter > 0:
 
 		########################################################################
 		# Attempt to detect some faces.
@@ -68,7 +68,8 @@ def detectFaces(image, cc):
 		########################################################################
 		# If a face is found, do this.
 		if (len(faces) > 0):
-			return counter * 90
+			return faces
+			# return counter * 90
 
 		########################################################################
 		# Rotate the image.
