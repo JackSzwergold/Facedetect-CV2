@@ -63,7 +63,7 @@ def detectFaces(image_resized, cc):
 		small_img_filtered, dimensions = cv2.threshold(small_img_blur, 0, 255, cv2.THRESH_BINARY)
 		tmp_mat = cv2.moments(small_img_filtered, 0)
 
-		print(tmp_mat)
+		# print(tmp_mat)
 		# exit()
 		#
 		# # Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
