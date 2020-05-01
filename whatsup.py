@@ -8,28 +8,33 @@
 #    \_/\_/  |_| |_|\__,_|\__|___/\__,_| .__/
 #                                      |_|
 #
-# 2020-04-30: An updated version of Stuporglue’s “Whatsup” script.
-# Source: https://stuporglue.org/automatically-orient-scanned-photos-correctly-with-opencv/
+# 2020-04-30: An updated version of Stuporglue’s “Whatsup” script. Now uses
+# Python3 and CV2 methods and conventions.
+#
+# Usage: whatsup [filepath]
+#
+# Output: The number of degrees it should be rotated clockwise to orient the faces correctly.
+#
+################################################################################
+#
+# As it describes itself:
+#
+# “This script reads in a file and counter to determine which orientation is
+# correct by looking for faces in the photos. It starts with the existing
+# orientation, then rotates it 90 degrees at a time until it has either tried
+# all 4 directions or until it finds a face”
+#
+# Primary source:
+# 	https://stuporglue.org/automatically-orient-scanned-photos-correctly-with-opencv/
+#
+# Two other — now dead — sites are referenced as a source as well:
+# 	http://blog.jozilla.net/2008/06/27/fun-with-python-opencv-and-face-detection/
+# 	http://opencv.willowgarage.com/documentation/python/core_operations_on_arrays.html#createmat
+#
 ################################################################################
 
 ################################################################################
-# This script reads in a file and counter to determine which orientation is correct
-# by looking for faces in the photos
-# It starts with the existing orientation, then rotates it 90 degrees at a time until
-# it has either tried all 4 directions or until it finds a face
-
-################################################################################
-# INSTALL: Put the xml files in /usr/local/share, or change the script. Put whatsup somewhere in your path
-
-################################################################################
-# Usage: whatsup filename
-# Returns the number of degrees it should be rotated clockwise to orient the faces correctly
-
-################################################################################
-# Some code came from here: http://blog.jozilla.net/2008/06/27/fun-with-python-opencv-and-face-detection/
-# The rest was cobbled together by me from the documentation here [1] and from snippets and samples found via Google
-# [1] http://opencv.willowgarage.com/documentation/python/core_operations_on_arrays.html#createmat
-
+# Import various modules.
 import sys
 import os
 import cv2
@@ -37,6 +42,8 @@ import math
 import numpy as np;
 import pathlib
 
+################################################################################
+# The 'detectFaces' function.
 def detectFaces(image, cc):
 
 	############################################################################
@@ -78,7 +85,7 @@ def detectFaces(image, cc):
 	return False
 
 ################################################################################
-# Detect which side of the photo is brightest. Hopefully it will be the sky.
+# The 'detectBrightest' function.
 def detectBrightest(image):
 	image_scale = 4 # This scale factor doesn't matter much. It just gives us less pixels to iterate over later
 	newsize = (cv2.Round(image.width/image_scale), cv2.Round(image.height/image_scale)) # find new size
@@ -120,7 +127,7 @@ def detectBrightest(image):
 	return returns[winning]
 
 ################################################################################
-# Defining the 'tryDetect' method.
+# The 'tryDetect' function.
 def tryDetect():
 
 	############################################################################
@@ -137,10 +144,12 @@ def tryDetect():
 	image_path = os.path.abspath(filename_full)
 
 	############################################################################
-	# Load the image into the scriupt.
+	# Load the image into the script.
 	cv2.IMREAD_GRAYSCALE = 0
 	source_img = cv2.imread(image_path) # the image itself
 
+	############################################################################
+	# Set the cascade data directories stuff.
 	data_directory = '/usr/local/lib/python3.7/site-packages/cv2/data/'
 	cascades_to_use = ('haarcascade_frontalface_alt.xml', 'haarcascade_profileface.xml', 'haarcascade_fullbody.xml')
 
