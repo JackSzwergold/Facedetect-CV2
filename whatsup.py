@@ -125,7 +125,8 @@ def detectBrightest(image):
 def trydetect():
 	# Load some things that we'll use during each loop so we don't keep re-creating them
 	cv2.IMREAD_GRAYSCALE = 0
-	source_img = cv2.imread(os.path.abspath(sys.argv[-1])) # the image itself
+	img_path = os.path.abspath(sys.argv[-1])
+	source_img = cv2.imread(img_path) # the image itself
 	# Get more at: https://code.ros.org/svn/opencv/tags/latest_tested_snapshot/opencv/data/haarCASCADES/
 	# DATA_DIR = cv2.data.haarCASCADES
 	DATA_DIR = '/usr/local/lib/python3.7/site-packages/cv2/data/'
@@ -142,12 +143,12 @@ def trydetect():
 			img_shape = np.shape(source_img)
 			img_w = img_shape[0]
 			img_h = img_shape[1]
-			newsize = (round (img_w / image_scale), round(img_h / image_scale)) # find new size
+			newsize = (round (img_h / image_scale), round(img_w / image_scale)) # find new size
 
 			# small_img = cv2.CreateImage(newsize, 8, 1)
 			# cv2.Resize(source_img, small_img, cv2.CV_INTER_LINEAR)
 			small_img = cv2.resize(source_img, newsize, interpolation = cv2.INTER_CUBIC)
-
+			# cv2.imwrite('foo.png', small_img)
 			returnme = detectFaces(small_img, loadedCascade)
 
 			if returnme is not False:
