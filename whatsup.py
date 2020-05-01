@@ -35,6 +35,7 @@ import os
 import cv2
 import math
 import numpy as np;
+import pathlib
 
 def detectFaces(image_resized, cc):
 
@@ -128,24 +129,30 @@ def detectBrightest(image):
 # Defining the 'tryDetect' method.
 def tryDetect():
 
-	# print(os.path.basename(img_path))
-	# print(os.path.dirname(img_path))
-	print(os.path.abspath(img_path))
+	# Set the filename from the input argument.
+	filename = sys.argv[-1]
 
 	# Set the image path.
-	img_path = os.path.abspath(sys.argv[-1])
+	image_path = os.path.abspath(filename)
+
+	# print(os.path.dirname(image_path))
+	print(os.path.basename(image_path))
+	# print(filename)
+	# print(pathlib.Path(image_path).suffix)
+	print(pathlib.Path(image_path).suffix)
+	exit()
 
 	# Load the image into the scriupt.
 	cv2.IMREAD_GRAYSCALE = 0
-	source_img = cv2.imread(img_path) # the image itself
+	source_img = cv2.imread(image_path) # the image itself
 
-	DATA_DIR = '/usr/local/lib/python3.7/site-packages/cv2/data/'
-	CASCADES_TO_USE = ('haarcascade_frontalface_alt.xml', 'haarcascade_profileface.xml', 'haarcascade_fullbody.xml')
+	data_directory = '/usr/local/lib/python3.7/site-packages/cv2/data/'
+	cascades_to_use = ('haarcascade_frontalface_alt.xml', 'haarcascade_profileface.xml', 'haarcascade_fullbody.xml')
 
-	for THIS_CASCADE in CASCADES_TO_USE:
+	for this_cascade in cascades_to_use:
 
 		# Define the cascade classifier.
-		cc = cv2.CascadeClassifier(os.path.join(DATA_DIR, THIS_CASCADE))
+		cc = cv2.CascadeClassifier(os.path.join(data_directory, this_cascade))
 
 		image_scale = 4
 		while image_scale > 0:
