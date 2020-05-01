@@ -39,9 +39,11 @@ import pathlib
 
 def detectFaces(image_resized, cc):
 
+	############################################################################
 	# Initialize the counter.
 	counter = 0
 
+	############################################################################
 	# Set the min and max image size.
 	side = math.sqrt(image_resized.size)
 	min_length = int(side / 20)
@@ -50,11 +52,13 @@ def detectFaces(image_resized, cc):
 	# rotations_to_use = ('ROTATE_90_CLOCKWISE', 'ROTATE_90_COUNTERCLOCKWISE', 'ROTATE_180')
 	rotations_to_use = ('ROTATE_90_CLOCKWISE', 'ROTATE_90_COUNTERCLOCKWISE')
 
+	############################################################################
 	# Set the CV2 flags.
 	flags = cv2.CASCADE_DO_CANNY_PRUNING
 	# flags = cv2.CASCADE_SCALE_IMAGE
 
-	# 4 shots at getting faces.
+	############################################################################
+	# Roll through the rotations to use.
 	for this_rotation in rotations_to_use:
 
 		# Attempt to detect some faces.
@@ -62,20 +66,23 @@ def detectFaces(image_resized, cc):
 
 		print(this_rotation)
 
-
+		########################################################################
+		# If a face is found, do this.
 		if (len(faces) > 0):
 			return counter * 90
 
+		########################################################################
 		# Rotate the image.
 		small_image_blur = cv2.GaussianBlur(image_resized, (5, 5), 0)
 		small_image_filtered, dimensions = cv2.threshold(small_image_blur, 0, 255, cv2.THRESH_BINARY)
 
+		########################################################################
 		# Increment the counter.
 		counter = counter + 1
 
 	return False
 
-
+################################################################################
 # Detect which side of the photo is brightest. Hopefully it will be the sky.
 def detectBrightest(image):
 	image_scale = 4 # This scale factor doesn't matter much. It just gives us less pixels to iterate over later
@@ -83,6 +90,7 @@ def detectBrightest(image):
 	image_resized = cv2.CreateImage(newsize, 8, 1)
 	cv2.Resize(image, image_resized, cv2.CV_INTER_LINEAR)
 
+	############################################################################
 	# Take the top 1/3, right 1/3, etc. to compare for brightness
 	width = image_resized.width
 	height = image_resized.height
@@ -93,6 +101,7 @@ def detectBrightest(image):
 
 	sides = {'top':top, 'left':left, 'bottom':bottom, 'right':right}
 
+	############################################################################
 	# Find the brightest side
 	greatest = 0
 	winning = 'top'
@@ -115,19 +124,24 @@ def detectBrightest(image):
 
 	return returns[winning]
 
+################################################################################
 # Defining the 'tryDetect' method.
 def tryDetect():
 
+	############################################################################
 	# Set the filename from the input argument.
 	filename_full = sys.argv[-1]
 
+	############################################################################
 	# Set the filename and extension.
 	filename = pathlib.Path(filename_full).stem
 	extension = pathlib.Path(filename_full).suffix
 
+	############################################################################
 	# Set the image path.
 	image_path = os.path.abspath(filename_full)
 
+	############################################################################
 	# Load the image into the scriupt.
 	cv2.IMREAD_GRAYSCALE = 0
 	source_img = cv2.imread(image_path) # the image itself
@@ -137,28 +151,34 @@ def tryDetect():
 
 	for this_cascade in cascades_to_use:
 
+		########################################################################
 		# Define the cascade classifier.
 		cc = cv2.CascadeClassifier(os.path.join(data_directory, this_cascade))
 
 		image_scale = 4
 		while image_scale > 0:
 
+			####################################################################
 			# Get the dimensions of the image.
 			img_shape = np.shape(source_img)
 			image_w = img_shape[0]
 			image_h = img_shape[1]
 
+			####################################################################
 			# Calculate the new size for the images.
 			resize_w = round(image_w / image_scale)
 			resize_h = round(image_h / image_scale)
 
+			####################################################################
 			# Resize the image.
 			image_resized = cv2.resize(source_img, (resize_h, resize_w), interpolation = cv2.INTER_CUBIC)
 
+			####################################################################
 			# Write the image for debugging.
 			image_test = filename + '_' + str(resize_w) + 'x' + str(resize_h) + extension
 			cv2.imwrite(image_test, image_resized)
 
+			####################################################################
 			# Send the image to the 'dectectFaces' method.
 			results = detectFaces(image_resized, cc)
 
@@ -167,20 +187,23 @@ def tryDetect():
 
 			image_scale = image_scale - 1
 
+	############################################################################
 	# no faces found, use the brightest side for orientation instead
 	# return detectBrightest(source_img)
 	return
 
-
+################################################################################
 # Usage Check
 if ((len(sys.argv) != 2 and len(sys.argv) != 3) or (len(sys.argv) == 3)):
 	print ("USAGE: whatsup filename")
 	sys.exit(-1)
+################################################################################
 
 # Sanity check
 if not os.path.isfile(sys.argv[-1]):
 	print ("File '" + sys.argv[-1] + "' does not exist")
 	sys.exit(-1)
 
+################################################################################
 # Make it happen
 print (str(tryDetect()))
