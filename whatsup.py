@@ -125,14 +125,20 @@ def detectBrightest(image):
 
 	return returns[winning]
 
-# Try a couple different detection methods
-def trydetect():
-	# Load some things that we'll use during each loop so we don't keep re-creating them
-	cv2.IMREAD_GRAYSCALE = 0
+# Defining the 'tryDetect' method.
+def tryDetect():
+
+	# print(os.path.basename(img_path))
+	# print(os.path.dirname(img_path))
+	print(os.path.abspath(img_path))
+
+	# Set the image path.
 	img_path = os.path.abspath(sys.argv[-1])
+
+	# Load the image into the scriupt.
+	cv2.IMREAD_GRAYSCALE = 0
 	source_img = cv2.imread(img_path) # the image itself
-	# Get more at: https://code.ros.org/svn/opencv/tags/latest_tested_snapshot/opencv/data/haarCASCADES/
-	# DATA_DIR = cv2.data.haarCASCADES
+
 	DATA_DIR = '/usr/local/lib/python3.7/site-packages/cv2/data/'
 	CASCADES_TO_USE = ('haarcascade_frontalface_alt.xml', 'haarcascade_profileface.xml', 'haarcascade_fullbody.xml')
 
@@ -184,4 +190,4 @@ if not os.path.isfile(sys.argv[-1]):
 	sys.exit(-1)
 
 # Make it happen
-print (str(trydetect()))
+print (str(tryDetect()))
