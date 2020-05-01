@@ -156,11 +156,11 @@ def trydetect():
 	# Get more at: https://code.ros.org/svn/opencv/tags/latest_tested_snapshot/opencv/data/haarCASCADES/
 	# DATA_DIR = cv2.data.haarCASCADES
 	DATA_DIR = '/usr/local/lib/python3.7/site-packages/cv2/data/'
-	CASCADES = (# Listed in order most likely to appear in a photo
-		'haarcascade_frontalface_alt.xml',
-		'haarcascade_profileface.xml',
-		'haarcascade_fullbody.xml',
-		)
+	CASCADES = (
+				'haarcascade_frontalface_alt.xml',
+				'haarcascade_profileface.xml',
+				'haarcascade_fullbody.xml',
+			)
 
 	for CASCADE in CASCADES:
 		cascade = cv2.CascadeClassifier(os.path.join(DATA_DIR, CASCADE))
@@ -179,7 +179,7 @@ def trydetect():
 			# small_img = cv2.CreateImage(newsize, 8, 1)
 			# cv2.Resize(source_img, small_img, cv2.CV_INTER_LINEAR)
 			small_img = cv2.resize(source_img, newsize, interpolation = cv2.INTER_CUBIC)
-			# cv2.imwrite('foo.png', small_img)
+			cv2.imwrite('foo.png', small_img)
 			returnme = detectFaces(small_img, cascade)
 
 			if returnme is not False:
