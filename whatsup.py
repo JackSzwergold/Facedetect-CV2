@@ -139,11 +139,16 @@ def trydetect():
 	for CASCADE in CASCADES:
 		loadedCascade = cv2.CascadeClassifier(os.path.join(DATA_DIR, CASCADE))
 		image_scale = 4
-		while image_scale > 0: # Try 4 different sizes of our photo
+
+		 # Try 4 different sizes of our photo
+		while image_scale > 0:
+
 			img_shape = np.shape(source_img)
 			img_w = img_shape[0]
 			img_h = img_shape[1]
-			newsize = (round (img_h / image_scale), round(img_w / image_scale)) # find new size
+
+			# calculate the new size.
+			newsize = (round (img_h / image_scale), round(img_w / image_scale))
 
 			# small_img = cv2.CreateImage(newsize, 8, 1)
 			# cv2.Resize(source_img, small_img, cv2.CV_INTER_LINEAR)
@@ -156,7 +161,8 @@ def trydetect():
 
 			image_scale = image_scale - 1
 
-	return detectBrightest(source_img) # no faces found, use the brightest side for orientation instead
+	# no faces found, use the brightest side for orientation instead
+	return detectBrightest(source_img)
 
 
 # Usage Check
