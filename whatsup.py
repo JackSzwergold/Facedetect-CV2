@@ -39,7 +39,7 @@ def detectFaces(small_img, loadedCascade):
 	tries = 0 # 4 shots at getting faces.
 
 	while tries < 4:
-		faces =xcv2.HaarDetectObjects(small_img, loadedCascade, cv2.CreateMemStorage(0), scale_factor = 1.2, min_neighbors = 2, flags = cv2.CV_HAAR_DO_CANNY_PRUNING)
+		faces = xcv2.HaarDetectObjects(small_img, loadedCascade, cv2.CreateMemStorage(0), scale_factor = 1.2, min_neighbors = 2, flags = cv2.CV_HAAR_DO_CANNY_PRUNING)
 		if (len(faces) > 0):
 			if (sys.argv[1] == '--debug'):
 				for i in faces:
@@ -56,7 +56,7 @@ def detectFaces(small_img, loadedCascade):
 
 		# To rotate 90 clockwise, we transpose, then flip on Y axis
 		cv2.Transpose(small_img, tmp_dst_mat) # Transpose it
-		cv2.Flip(tmp_dst_mat, dst_mat, flipMode=1) # flip it
+		cv2.Flip(tmp_dst_mat, dst_mat, flipMode= 1) # flip it
 
 		# put it back in small_img so we can try to detect faces again
 		small_img = cv2.GetImage(dst_mat)
@@ -146,7 +146,7 @@ def trydetect():
 
 			# small_img = cv2.CreateImage(newsize, 8, 1)
 			# cv2.Resize(grayscale, small_img, cv2.CV_INTER_LINEAR)
-			small_img = cv2.resize(src, newsize, interpolation = cv2.INTER_CUBIC)
+			small_img = cv2.resize(grayscale, newsize, interpolation = cv2.INTER_CUBIC)
 
 			returnme = detectFaces(small_img, loadedCascade)
 
