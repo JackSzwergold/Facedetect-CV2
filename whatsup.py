@@ -39,20 +39,24 @@ import pathlib
 
 def detectFaces(image_resized, cc):
 
+	# Initialize the counter.
 	counter = 0
 
+	# Set the min and max image size.
 	side = math.sqrt(image_resized.size)
-	minlen = int(side / 20)
-	maxlen = int(side / 2)
+	min_length = int(side / 20)
+	max_length = int(side / 2)
+
 	flags = cv2.CASCADE_DO_CANNY_PRUNING
 	# flags = cv2.CASCADE_SCALE_IMAGE
 
 	# 4 shots at getting faces.
 	while counter < 4:
-		faces = cc.detectMultiScale(image_resized, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
-		print(faces)
-		if (len(faces) > 0):
 
+		# Attempt to detect some faces.
+		faces = cc.detectMultiScale(image_resized, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+
+		if (len(faces) > 0):
 			return counter * 90
 
 		# The rotation routine:
