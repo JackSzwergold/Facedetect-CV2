@@ -47,43 +47,28 @@ def detectFaces(image_resized, cc):
 	min_length = int(side / 20)
 	max_length = int(side / 2)
 
+	# rotations_to_use = ('ROTATE_90_CLOCKWISE', 'ROTATE_90_COUNTERCLOCKWISE', 'ROTATE_180')
+	rotations_to_use = ('ROTATE_90_CLOCKWISE', 'ROTATE_90_COUNTERCLOCKWISE')
+
+	# Set the CV2 flags.
 	flags = cv2.CASCADE_DO_CANNY_PRUNING
 	# flags = cv2.CASCADE_SCALE_IMAGE
 
 	# 4 shots at getting faces.
-	while counter < 4:
+	for this_rotation in rotations_to_use:
 
 		# Attempt to detect some faces.
 		faces = cc.detectMultiScale(image_resized, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
 
+		print(this_rotation)
+
+
 		if (len(faces) > 0):
 			return counter * 90
 
-		# The rotation routine:
-		# tmp_mat = cv2.GetMat(image_resized)
-		# kernel = np.ones((5,5),np.float32)/25
-		# small_img_filtered = cv2.filter2D(image_resized, cv2.CV_8U, kernel.transpose())
-		small_img_blur = cv2.GaussianBlur(image_resized, (5, 5), 0)
-		small_img_filtered, dimensions = cv2.threshold(small_img_blur, 0, 255, cv2.THRESH_BINARY)
-		tmp_mat = cv2.moments(small_img_filtered, 0)
-
-		# print(tmp_mat)
-		# exit()
-		#
-		# # Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
-		# # tmp_dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1)
-		# tmp_dst_mat = np.zeros((tmp_mat.rows, tmp_mat.cols, 3), np.uint8)
-		#
-		# # Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
-		# # dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1)
-		# dst_mat = np.zeros((tmp_mat.rows, tmp_mat.cols, 3), np.uint8)
-		#
-		# # To rotate 90 clockwise, we transpose, then flip on Y axis
-		# cv2.transpose(image_resized, tmp_dst_mat) # Transpose it
-		# cv2.flip(tmp_dst_mat, dst_mat, flipMode= 1) # flip it
-		#
-		# # put it back in image_resized so we can try to detect faces again
-		# image_resized = cv2.getImage(dst_mat)
+		# Rotate the image.
+		small_image_blur = cv2.GaussianBlur(image_resized, (5, 5), 0)
+		small_image_filtered, dimensions = cv2.threshold(small_image_blur, 0, 255, cv2.THRESH_BINARY)
 
 		# Increment the counter.
 		counter = counter + 1
