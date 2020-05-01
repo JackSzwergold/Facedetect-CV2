@@ -51,18 +51,30 @@ def detectFaces(small_img, loadedCascade):
 			return tries * 90
 
 		# The rotation routine:
-		tmp_mat = cv2.GetMat(small_img)
-		# Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
-		tmp_dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1)
+		# tmp_mat = cv2.GetMat(small_img)
+		# kernel = np.ones((5,5),np.float32)/25
+		# small_img_filtered = cv2.filter2D(small_img, cv2.CV_8U, kernel.transpose())
+		small_img_blur = cv2.GaussianBlur(small_img, (5, 5), 0)
+		small_img_filtered, dimensions = cv2.threshold(small_img_blur, 0, 255, cv2.THRESH_BINARY)
+		tmp_mat = cv2.moments(small_img_filtered, 0)
+
+		print(tmp_mat)
+		exit()
 
 		# Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
-		dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1)
+		# tmp_dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1)
+		tmp_dst_mat = np.zeros((tmp_mat.rows, tmp_mat.cols, 3), np.uint8)
+
+		# Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
+		# dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1)
+		dst_mat = np.zeros((tmp_mat.rows, tmp_mat.cols, 3), np.uint8)
+
 		# To rotate 90 clockwise, we transpose, then flip on Y axis
-		cv2.Transpose(small_img, tmp_dst_mat) # Transpose it
-		cv2.Flip(tmp_dst_mat, dst_mat, flipMode= 1) # flip it
+		cv2.transpose(small_img, tmp_dst_mat) # Transpose it
+		cv2.flip(tmp_dst_mat, dst_mat, flipMode= 1) # flip it
 
 		# put it back in small_img so we can try to detect faces again
-		small_img = cv2.GetImage(dst_mat)
+		small_img = cv2.getImage(dst_mat)
 		tries = tries + 1
 
 	return False
