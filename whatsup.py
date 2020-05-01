@@ -22,7 +22,7 @@
 # INSTALL: Put the xml files in /usr/local/share, or change the script. Put whatsup somewhere in your path
 
 ################################################################################
-# Usage: whatsup [--debug] filename
+# Usage: whatsup filename
 # Returns the number of degrees it should be rotated clockwise to orient the faces correctly
 
 ################################################################################
@@ -36,7 +36,7 @@ import cv2
 import math
 import numpy as np;
 
-def detectFaces(small_img, cascade):
+def detectFaces(small_img, cc):
 
 	counter = 0
 
@@ -48,7 +48,7 @@ def detectFaces(small_img, cascade):
 
 	# 4 shots at getting faces.
 	while counter < 4:
-		faces = cascade.detectMultiScale(small_img, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
+		faces = cc.detectMultiScale(small_img, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
 		print(faces)
 		if (len(faces) > 0):
 
@@ -116,20 +116,6 @@ def detectBrightest(image):
 		if sidelum > greatest:
 			winning = name
 
-	if (sys.argv[1] == '--debug'):
-		if winning == 'top':
-			first = (0, 0)
-			second = (width, height/3)
-		elif winning == 'left':
-			first = (0, 0)
-			second = (width/3, height)
-		elif winning == 'bottom':
-			first = (0, (height/3*2))
-			second = (width, height)
-		elif winning == 'right':
-			first = ((width/3*2), 0)
-			second = (width, height)
-
 	cv2.Rectangle(small_img, first, second, cv2.RGB(125, 125, 125), 3, 8, 0)
 	cv2.NamedWindow("Faces")
 	cv2.ShowImage("Faces", small_img)
@@ -137,9 +123,6 @@ def detectBrightest(image):
 
 	returns = {'top':0, 'left':90, 'bottom':180, 'right':270}
 
-	# return the winner
-	if sys.argv[1] == '--debug':
-		print ("The " + winning + " side was the brightest!")
 	return returns[winning]
 
 # Try a couple different detection methods
@@ -151,17 +134,14 @@ def trydetect():
 	# Get more at: https://code.ros.org/svn/opencv/tags/latest_tested_snapshot/opencv/data/haarCASCADES/
 	# DATA_DIR = cv2.data.haarCASCADES
 	DATA_DIR = '/usr/local/lib/python3.7/site-packages/cv2/data/'
-	CASCADES = (
-				'haarcascade_frontalface_alt.xml',
-				'haarcascade_profileface.xml',
-				'haarcascade_fullbody.xml',
-			)
+	CASCADES_TO_USE = ('haarcascade_frontalface_alt.xml', 'haarcascade_profileface.xml', 'haarcascade_fullbody.xml')
 
-	for CASCADE in CASCADES:
-		cascade = cv2.CascadeClassifier(os.path.join(DATA_DIR, CASCADE))
+	for THIS_CASCADE in CASCADES_TO_USE:
+
+		# Define the cascade classifier.
+		cc = cv2.CascadeClassifier(os.path.join(DATA_DIR, THIS_CASCADE))
+
 		image_scale = 4
-
-		 # Try 4 different sizes of our photo
 		while image_scale > 0:
 
 			img_shape = np.shape(source_img)
@@ -169,13 +149,15 @@ def trydetect():
 			img_h = img_shape[1]
 
 			# calculate the new size.
-			newsize = (round (img_h / image_scale), round(img_w / image_scale))
+			new_w = round(img_w / image_scale)
+			new_h = round(img_h / image_scale)
+			newsize = (new_h, new_w)
 
 			# small_img = cv2.CreateImage(newsize, 8, 1)
 			# cv2.Resize(source_img, small_img, cv2.CV_INTER_LINEAR)
 			small_img = cv2.resize(source_img, newsize, interpolation = cv2.INTER_CUBIC)
-			cv2.imwrite('foo.jpg', small_img)
-			results = detectFaces(small_img, cascade)
+			cv2.imwrite('test_' + str(new_w) + 'x' + str(new_h) + '.jpg', small_img)
+			results = detectFaces(small_img, cc)
 
 			if results is not False:
 				return results
@@ -183,12 +165,13 @@ def trydetect():
 			image_scale = image_scale - 1
 
 	# no faces found, use the brightest side for orientation instead
-	return detectBrightest(source_img)
+	# return detectBrightest(source_img)
+	return
 
 
 # Usage Check
 if ((len(sys.argv) != 2 and len(sys.argv) != 3) or (len(sys.argv) == 3 and sys.argv[1] != '--debug')):
-	print ("USAGE: whatsup [--debug] filename")
+	print ("USAGE: whatsup filename")
 	sys.exit(-1)
 
 # Sanity check
