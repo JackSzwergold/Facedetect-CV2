@@ -53,12 +53,12 @@ def detectFaces(small_img, cascade):
 		faces = cascade.detectMultiScale(small_img, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
 		print(faces)
 		if (len(faces) > 0):
-			if (sys.argv[1] == '--debug'):
-				for i in faces:
-					cv2.Rectangle(small_img, (i[0][0], i[0][1]), (i[0][0] + i[0][2], i[0][1] + i[0][3]), cv2.RGB(255, 255, 255), 3, 8, 0)
-				cv2.NamedWindow("Faces")
-				cv2.ShowImage("Faces", small_img)
-				cv2.WaitKey(1000)
+			# if (sys.argv[1] == '--debug'):
+			# 	for i in faces:
+			# 		cv2.Rectangle(small_img, (i[0][0], i[0][1]), (i[0][0] + i[0][2], i[0][1] + i[0][3]), cv2.RGB(255, 255, 255), 3, 8, 0)
+			# 	cv2.NamedWindow("Faces")
+			# 	cv2.ShowImage("Faces", small_img)
+			# 	cv2.WaitKey(1000)
 			return tries * 90
 
 		# The rotation routine:
