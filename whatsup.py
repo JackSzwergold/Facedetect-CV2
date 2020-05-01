@@ -173,7 +173,7 @@ def tryDetect():
 
 
 # Usage Check
-if ((len(sys.argv) != 2 and len(sys.argv) != 3) or (len(sys.argv) == 3 and sys.argv[1] != '--debug')):
+if ((len(sys.argv) != 2 and len(sys.argv) != 3) or (len(sys.argv) == 3)):
 	print ("USAGE: whatsup filename")
 	sys.exit(-1)
 
