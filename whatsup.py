@@ -5,7 +5,7 @@
 # \ \      / / |__   __ _| |_ ___ _   _ _ __
 #  \ \ /\ / /| '_ \ / _` | __/ __| | | | '_ \
 #   \ V  V / | | | | (_| | |_\__ \ |_| | |_) |
-#    \_/\_/  |_| |_|\__,_|\__|___/\__,_| .__/
+#    \_/\_/  |_| |_|\__, _|\__|___/\__, _| .__/
 #                                      |_|
 #
 # 2020-04-30: An updated version of Stuporglue’s “Whatsup” script.
@@ -35,7 +35,7 @@ import os
 import cv2
 import numpy as np;
 
-def detectFaces(small_img,loadedCascade):
+def detectFaces(small_img, loadedCascade):
 	tries = 0 # 4 shots at getting faces.
 
 	while tries < 4:
@@ -43,20 +43,20 @@ def detectFaces(small_img,loadedCascade):
 		if (len(faces) > 0):
 			if (sys.argv[1] == '--debug'):
 				for i in faces:
-					cv2.Rectangle(small_img, (i[0][0],i[0][1]),(i[0][0] + i[0][2],i[0][1] + i[0][3]), cv2.RGB(255,255,255), 3, 8, 0)
+					cv2.Rectangle(small_img, (i[0][0], i[0][1]), (i[0][0] + i[0][2], i[0][1] + i[0][3]), cv2.RGB(255, 255, 255), 3, 8, 0)
 				cv2.NamedWindow("Faces")
-				cv2.ShowImage("Faces",small_img)
+				cv2.ShowImage("Faces", small_img)
 				cv2.WaitKey(1000)
 			return tries * 90
 
 		# The rotation routine:
 		tmp_mat = cv2.GetMat(small_img)
-		tmp_dst_mat = cv2.CreateMat(tmp_mat.cols,tmp_mat.rows,cv2.CV_8UC1) # Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
-		dst_mat = cv2.CreateMat(tmp_mat.cols,tmp_mat.rows,cv2.CV_8UC1) # Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
+		tmp_dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1) # Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
+		dst_mat = cv2.CreateMat(tmp_mat.cols, tmp_mat.rows, cv2.CV_8UC1) # Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
 
 		# To rotate 90 clockwise, we transpose, then flip on Y axis
-		cv2.Transpose(small_img,tmp_dst_mat) # Transpose it
-		cv2.Flip(tmp_dst_mat,dst_mat,flipMode=1) # flip it
+		cv2.Transpose(small_img, tmp_dst_mat) # Transpose it
+		cv2.Flip(tmp_dst_mat, dst_mat, flipMode=1) # flip it
 
 		# put it back in small_img so we can try to detect faces again
 		small_img = cv2.GetImage(dst_mat)
@@ -75,12 +75,12 @@ def detectBrightest(image):
 	# Take the top 1/3, right 1/3, etc. to compare for brightness
 	width = small_img.width
 	height = small_img.height
-	top = small_img[0:height/3,0:width]
-	right = small_img[0:height,(width/3*2):width]
-	left = small_img[0:height,0:width/3]
-	bottom = small_img[(height/3*2):height,0:height]
+	top = small_img[0:height/3, 0:width]
+	right = small_img[0:height, (width/3*2):width]
+	left = small_img[0:height, 0:width/3]
+	bottom = small_img[(height/3*2):height, 0:height]
 
-	sides = {'top':top,'left':left,'bottom':bottom,'right':right}
+	sides = {'top':top, 'left':left, 'bottom':bottom, 'right':right}
 
 	# Find the brightest side
 	greatest = 0
@@ -90,31 +90,31 @@ def detectBrightest(image):
 		side = sides[name]
 		for x in range(side.rows - 1):
 			for y in range(side.cols - 1):
-				sidelum = sidelum + side[x,y]
+				sidelum = sidelum + side[x, y]
 		sidelum = sidelum/(side.rows*side.cols)
 		if sidelum > greatest:
 			winning = name
 
 	if (sys.argv[1] == '--debug'):
 		if winning == 'top':
-			first = (0,0)
-			second = (width,height/3)
+			first = (0, 0)
+			second = (width, height/3)
 		elif winning == 'left':
-			first = (0,0)
-			second = (width/3,height)
+			first = (0, 0)
+			second = (width/3, height)
 		elif winning == 'bottom':
-			first = (0,(height/3*2))
-			second = (width,height)
+			first = (0, (height/3*2))
+			second = (width, height)
 		elif winning == 'right':
-			first = ((width/3*2),0)
-			second = (width,height)
+			first = ((width/3*2), 0)
+			second = (width, height)
 
-	cv2.Rectangle(small_img,first,second,cv2.RGB(125,125,125),3,8,0)
+	cv2.Rectangle(small_img, first, second, cv2.RGB(125, 125, 125), 3, 8, 0)
 	cv2.NamedWindow("Faces")
-	cv2.ShowImage("Faces",small_img)
+	cv2.ShowImage("Faces", small_img)
 	cv2.WaitKey(3000)
 
-	returns = {'top':0,'left':90,'bottom':180,'right':270}
+	returns = {'top':0, 'left':90, 'bottom':180, 'right':270}
 
 	# return the winner
 	if sys.argv[1] == '--debug':
@@ -142,11 +142,11 @@ def trydetect():
 			img_shape = np.shape(grayscale)
 			img_w = img_shape[0]
 			img_h = img_shape[1]
-			newsize = (round (img_w/image_scale), round(img_h/image_scale)) # find new size
+			newsize = (round (img_w / image_scale), round(img_h / image_scale)) # find new size
 
 			small_img = cv2.CreateImage(newsize, 8, 1)
 			cv2.Resize(grayscale, small_img, cv2.CV_INTER_LINEAR)
-			returnme = detectFaces(small_img,loadedCascade)
+			returnme = detectFaces(small_img, loadedCascade)
 			if returnme is not False:
 				return returnme
 
