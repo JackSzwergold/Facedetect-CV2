@@ -64,6 +64,8 @@ def detectFaces(image_resized, cc):
 		# Attempt to detect some faces.
 		faces = cc.detectMultiScale(image_resized, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
 
+		########################################################################
+		# TODO: Debugging.
 		print(this_rotation)
 
 		########################################################################
