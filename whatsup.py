@@ -37,7 +37,7 @@ import math
 import numpy as np;
 import pathlib
 
-def detectFaces(image_resized, cc):
+def detectFaces(image, cc):
 
 	############################################################################
 	# Initialize the counter.
@@ -45,12 +45,12 @@ def detectFaces(image_resized, cc):
 
 	############################################################################
 	# Set the min and max image size.
-	side = math.sqrt(image_resized.size)
+	side = math.sqrt(image.size)
 	min_length = int(side / 20)
 	max_length = int(side / 2)
 
 	# rotations_to_use = ('ROTATE_90_CLOCKWISE', 'ROTATE_90_COUNTERCLOCKWISE', 'ROTATE_180')
-	rotations_to_use = ('ROTATE_90_CLOCKWISE', 'ROTATE_90_COUNTERCLOCKWISE')
+	rotations_to_use = (cv2.ROTATE_90_CLOCKWISE, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
 	############################################################################
 	# Set the CV2 flags.
@@ -61,12 +61,9 @@ def detectFaces(image_resized, cc):
 	# Roll through the rotations to use.
 	for this_rotation in rotations_to_use:
 
-		# Attempt to detect some faces.
-		faces = cc.detectMultiScale(image_resized, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
-
 		########################################################################
-		# TODO: Debugging.
-		print(this_rotation)
+		# Attempt to detect some faces.
+		faces = cc.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
 
 		########################################################################
 		# If a face is found, do this.
@@ -75,8 +72,7 @@ def detectFaces(image_resized, cc):
 
 		########################################################################
 		# Rotate the image.
-		small_image_blur = cv2.GaussianBlur(image_resized, (5, 5), 0)
-		small_image_filtered, dimensions = cv2.threshold(small_image_blur, 0, 255, cv2.THRESH_BINARY)
+		image = cv2.rotate(image, this_rotation)
 
 		########################################################################
 		# Increment the counter.
@@ -199,11 +195,11 @@ def tryDetect():
 if ((len(sys.argv) != 2 and len(sys.argv) != 3) or (len(sys.argv) == 3)):
 	print ("USAGE: whatsup filename")
 	sys.exit(-1)
-################################################################################
 
+################################################################################
 # Sanity check
 if not os.path.isfile(sys.argv[-1]):
-	print ("File '" + sys.argv[-1] + "' does not exist")
+	print ("File '" + sys.argv[-1] + "' not found.")
 	sys.exit(-1)
 
 ################################################################################
