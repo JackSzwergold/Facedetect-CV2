@@ -112,14 +112,13 @@ def detectBrightest(image):
 	############################################################################
 	# Take the top 1/3, right 1/3, etc. to compare for brightness
 	top = [round(resize_h / 3), resize_w]
-	right = [resize_h, round(resize_w / 3 * 2)]
+	right = [resize_h, round(resize_w / (3 * 2))]
 	left = [resize_h, round(resize_w / 3)]
-	bottom = [round(resize_h/3*2), resize_h]
+	bottom = [round(resize_h / (3 * 2)), resize_h]
 
 	sides = { 'top' : top, 'left' : left, 'bottom' : bottom, 'right' : right}
 
-	print(sides)
-	exit()
+
 
 	############################################################################
 	# Find the brightest side
@@ -131,16 +130,19 @@ def detectBrightest(image):
 		for x in range(side.rows - 1):
 			for y in range(side.cols - 1):
 				sidelum = sidelum + side[x, y]
-		sidelum = sidelum/(side.rows*side.cols)
+		sidelum = sidelum / (side.rows * side.cols)
 		if sidelum > greatest:
 			winning = name
 
-	cv2.Rectangle(image_resized, first, second, cv2.RGB(125, 125, 125), 3, 8, 0)
-	cv2.NamedWindow("Faces")
-	cv2.ShowImage("Faces", image_resized)
-	cv2.WaitKey(3000)
+	print(winning)
+	exit()
 
-	returns = {'top':0, 'left':90, 'bottom':180, 'right':270}
+	# cv2.Rectangle(image_resized, first, second, cv2.RGB(125, 125, 125), 3, 8, 0)
+	# cv2.NamedWindow("Faces")
+	# cv2.ShowImage("Faces", image_resized)
+	# cv2.WaitKey(3000)
+
+	returns = { 'top' : 0, 'left' : 90, 'bottom' : 180, 'right' : 270 }
 
 	return returns[winning]
 
