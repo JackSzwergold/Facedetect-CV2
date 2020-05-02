@@ -46,7 +46,7 @@ import pathlib
 
 ################################################################################
 # The 'detectFaces' function.
-def detectFaces(image, cc):
+def detectFaces(image, cc, filename, extension):
 
 	############################################################################
 	# Initialize the counter.
@@ -69,12 +69,15 @@ def detectFaces(image, cc):
 
 		########################################################################
 		# Attempt to detect some faces.
-		faces = cc.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+		faces_detected = cc.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
 
 		########################################################################
 		# If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
-		if (len(faces) > 0):
-			return counter * 90
+		if (len(faces_detected) > 0):
+			rotation = counter * 90
+			image_test = filename + '_' + str(rotation) + extension
+			cv2.imwrite(image_test, image)
+			return crotation
 
 		########################################################################
 		# Rotate the image 90 degrees clockwise.
@@ -143,13 +146,8 @@ def tryDetect():
 			image_resized = cv2.resize(image, (resize_h, resize_w), interpolation = cv2.INTER_CUBIC)
 
 			####################################################################
-			# Write the image for debugging.
-			# image_test = filename + '_' + str(resize_w) + 'x' + str(resize_h) + extension
-			# cv2.imwrite(image_test, image_resized)
-
-			####################################################################
 			# Send the image to the 'dectectFaces' method.
-			results = detectFaces(image_resized, cc)
+			results = detectFaces(image_resized, cc, filename, extension)
 
 			####################################################################
 			# If we have results return the results.
