@@ -247,5 +247,9 @@ if not os.path.isfile(sys.argv[-1]):
 	sys.exit(-1)
 
 ################################################################################
-# Make it happen
-print (str(tryDetect(True)))
+# And here’s where we invoke it.
+results = str(tryDetect(True))
+print (results))
+
+# image_test = filename + '_' + str(rotation) + extension
+# cv2.imwrite(image_test, image)
