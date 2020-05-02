@@ -1,3 +1,10 @@
 # Ignore OS specific cruft.
 .DS_Store
 Thumbs.db
+
+# Ignoring these image files.
+*.gif
+*.jpg
+*.jpeg
+*.png
+*.tif

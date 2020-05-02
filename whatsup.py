@@ -8,161 +8,199 @@
 #    \_/\_/  |_| |_|\__,_|\__|___/\__,_| .__/
 #                                      |_|
 #
-# 2020-04-30: An updated version of Stuporglue’s “Whatsup” script.
-# Source: https://stuporglue.org/automatically-orient-scanned-photos-correctly-with-opencv/
+# 2020-04-30: An updated version of Stuporglue’s “Whatsup” script. Now uses
+# Python3 and CV2 methods and conventions.
+#
+# Usage: whatsup [filepath]
+#
+# Output: The number of degrees it should be rotated clockwise to orient the faces correctly.
+#
 ################################################################################
 
 ################################################################################
-# This script reads in a file and tries to determine which orientation is correct
-# by looking for faces in the photos
-# It starts with the existing orientation, then rotates it 90 degrees at a time until
-# it has either tried all 4 directions or until it finds a face
+#
+# As the author describes it:
+#
+# “This script reads in a file and counter to determine which orientation is
+# correct by looking for faces in the photos. It starts with the existing
+# orientation, then rotates it 90 degrees at a time until it has either tried
+# all 4 directions or until it finds a face”
+#
+# Primary source:
+# 	https://stuporglue.org/automatically-orient-scanned-photos-correctly-with-opencv/
+#
+# Two other — now dead — sites are referenced as a source as well:
+# 	http://blog.jozilla.net/2008/06/27/fun-with-python-opencv-and-face-detection/
+# 	http://opencv.willowgarage.com/documentation/python/core_operations_on_arrays.html#createmat
+#
+################################################################################
 
 ################################################################################
-# INSTALL: Put the xml files in /usr/local/share, or change the script. Put whatsup somewhere in your path
-
-################################################################################
-# Usage: whatsup [--debug] filename
-# Returns the number of degrees it should be rotated clockwise to orient the faces correctly
-
-################################################################################
-# Some code came from here: http://blog.jozilla.net/2008/06/27/fun-with-python-opencv-and-face-detection/
-# The rest was cobbled together by me from the documentation here [1] and from snippets and samples found via Google
-# [1] http://opencv.willowgarage.com/documentation/python/core_operations_on_arrays.html#createmat
-
+# Import various modules and functions.
+from __future__ import print_function, division, generators, unicode_literals
 import sys
 import os
 import cv2
+import math
 import numpy as np;
+import pathlib
 
-def detectFaces(small_img,loadedCascade):
-	tries = 0 # 4 shots at getting faces.
+################################################################################
+# CV compatibility stubs
+if 'IMREAD_GRAYSCALE' not in dir(cv2):
+    # <2.4
+    cv2.IMREAD_GRAYSCALE = 0
+if 'cv' in dir(cv2):
+    # <3.0
+    cv2.CASCADE_DO_CANNY_PRUNING = cv2.cv.CV_HAAR_DO_CANNY_PRUNING
+    cv2.CASCADE_FIND_BIGGEST_OBJECT = cv2.cv.CV_HAAR_FIND_BIGGEST_OBJECT
+    cv2.FONT_HERSHEY_SIMPLEX = cv2.cv.InitFont(cv2.cv.CV_FONT_HERSHEY_SIMPLEX, 0.5, 0.5, 0, 1, cv2.cv.CV_AA)
+    cv2.LINE_AA = cv2.cv.CV_AA
 
-	while tries < 4:
-		faces =xcv2.HaarDetectObjects(small_img, loadedCascade, cv2.CreateMemStorage(0), scale_factor = 1.2, min_neighbors = 2, flags = cv2.CV_HAAR_DO_CANNY_PRUNING)
-		if (len(faces) > 0):
-			if (sys.argv[1] == '--debug'):
-				for i in faces:
-					cv2.Rectangle(small_img, (i[0][0],i[0][1]),(i[0][0] + i[0][2],i[0][1] + i[0][3]), cv2.RGB(255,255,255), 3, 8, 0)
-				cv2.NamedWindow("Faces")
-				cv2.ShowImage("Faces",small_img)
-				cv2.WaitKey(1000)
-			return tries * 90
+############################################################################
+# Set the cascade data directory and related stuff.
+DATA_DIRECTORY = '/usr/local/lib/python3.7/site-packages/cv2/data/'
+# CASCADES_TO_USE = ('haarcascade_frontalface_alt.xml', 'haarcascade_profileface.xml', 'haarcascade_fullbody.xml')
+CASCADES_TO_USE = ('haarcascade_profileface.xml', 'haarcascade_fullbody.xml', 'haarcascade_frontalface_alt.xml', 'haarcascade_frontalface_default.xml')
 
-		# The rotation routine:
-		tmp_mat = cv2.GetMat(small_img)
-		tmp_dst_mat = cv2.CreateMat(tmp_mat.cols,tmp_mat.rows,cv2.CV_8UC1) # Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
-		dst_mat = cv2.CreateMat(tmp_mat.cols,tmp_mat.rows,cv2.CV_8UC1) # Create a Mat that is rotated 90 degrees in size (3x4 becomes 4x3)
+################################################################################
+# The 'detectFaces' function.
+def detectFaces(image, cc, filename, extension, biggest=False):
 
-		# To rotate 90 clockwise, we transpose, then flip on Y axis
-		cv2.Transpose(small_img,tmp_dst_mat) # Transpose it
-		cv2.Flip(tmp_dst_mat,dst_mat,flipMode=1) # flip it
+	############################################################################
+	# Initialize the counter.
+	counter = 0
 
-		# put it back in small_img so we can try to detect faces again
-		small_img = cv2.GetImage(dst_mat)
-		tries = tries + 1
+	############################################################################
+	# Set the min and max image size.
+	side = math.sqrt(image.size)
+	min_length = int(side / 20)
+	max_length = int(side / 2)
+
+	############################################################################
+	# Set the CV2 flags.
+	flags = cv2.CASCADE_DO_CANNY_PRUNING
+
+	############################################################################
+	# If we are looking for the biggest face, set that flag.
+	if biggest:
+		flags |= cv2.CASCADE_FIND_BIGGEST_OBJECT
+
+	############################################################################
+	# Roll through the rotations to use.
+	while counter < 4:
+
+		########################################################################
+		# Attempt to detect some faces.
+		faces_detected = cc.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+
+		########################################################################
+		# If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
+		if (len(faces_detected) > 0):
+			rotation = counter * 90
+			image_test = filename + '_' + str(rotation) + extension
+			cv2.imwrite(image_test, image)
+			return rotation
+
+		########################################################################
+		# Rotate the image 90 degrees clockwise.
+		image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+
+		########################################################################
+		# Increment the counter.
+		counter = counter + 1
 
 	return False
 
+################################################################################
+# The 'tryDetect' function.
+def tryDetect(biggest=False):
 
-# Detect which side of the photo is brightest. Hopefully it will be the sky.
-def detectBrightest(image):
-	image_scale = 4 # This scale factor doesn't matter much. It just gives us less pixels to iterate over later
-	newsize = (cv2.Round(image.width/image_scale), cv2.Round(image.height/image_scale)) # find new size
-	small_img = cv2.CreateImage(newsize, 8, 1)
-	cv2.Resize(image, small_img, cv2.CV_INTER_LINEAR)
+	############################################################################
+	# Set the filename from the input argument.
+	filename_full = sys.argv[-1]
 
-	# Take the top 1/3, right 1/3, etc. to compare for brightness
-	width = small_img.width
-	height = small_img.height
-	top = small_img[0:height/3,0:width]
-	right = small_img[0:height,(width/3*2):width]
-	left = small_img[0:height,0:width/3]
-	bottom = small_img[(height/3*2):height,0:height]
+	############################################################################
+	# Set the filename and extension.
+	filename = pathlib.Path(filename_full).stem
+	extension = pathlib.Path(filename_full).suffix
 
-	sides = {'top':top,'left':left,'bottom':bottom,'right':right}
+	############################################################################
+	# Set the image path.
+	image_path = os.path.abspath(filename_full)
 
-	# Find the brightest side
-	greatest = 0
-	winning = 'top'
-	for name in sides:
-		sidelum = 0
-		side = sides[name]
-		for x in range(side.rows - 1):
-			for y in range(side.cols - 1):
-				sidelum = sidelum + side[x,y]
-		sidelum = sidelum/(side.rows*side.cols)
-		if sidelum > greatest:
-			winning = name
+	############################################################################
+	# Load the image into the script.
+	image = cv2.imread(image_path)
 
-	if (sys.argv[1] == '--debug'):
-		if winning == 'top':
-			first = (0,0)
-			second = (width,height/3)
-		elif winning == 'left':
-			first = (0,0)
-			second = (width/3,height)
-		elif winning == 'bottom':
-			first = (0,(height/3*2))
-			second = (width,height)
-		elif winning == 'right':
-			first = ((width/3*2),0)
-			second = (width,height)
+	############################################################################
+	# Adjust contrast and brightness: Contrast (1.0-3.0), Brightness (0-100)
+	contrast = 1.25
+	brightness = 0
+	image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
 
-	cv2.Rectangle(small_img,first,second,cv2.RGB(125,125,125),3,8,0)
-	cv2.NamedWindow("Faces")
-	cv2.ShowImage("Faces",small_img)
-	cv2.WaitKey(3000)
+	############################################################################
+	# Convert the image to grayscale.
+	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-	returns = {'top':0,'left':90,'bottom':180,'right':270}
+	############################################################################
+	# Roll through the cascades.
+	for THIS_CASCADE in CASCADES_TO_USE:
 
-	# return the winner
-	if sys.argv[1] == '--debug':
-		print ("The " + winning + " side was the brightest!")
-	return returns[winning]
+		########################################################################
+		# Initialize the counter.
+		counter = 4
 
-# Try a couple different detection methods
-def trydetect():
-	# Load some things that we'll use during each loop so we don't keep re-creating them
-	cv2.IMREAD_GRAYSCALE = 0
-	grayscale = cv2.imread(os.path.abspath(sys.argv[-1])) # the image itself
-	# Get more at: https://code.ros.org/svn/opencv/tags/latest_tested_snapshot/opencv/data/haarCASCADES/
-	# DATA_DIR = cv2.data.haarCASCADES
-	DATA_DIR = '/usr/local/lib/python3.7/site-packages/cv2/data/'
-	CASCADES = (# Listed in order most likely to appear in a photo
-		'haarcascade_frontalface_alt.xml',
-		'haarcascade_profileface.xml',
-		'haarcascade_fullbody.xml',
-		)
+		########################################################################
+		# Define the cascade classifier.
+		cc = cv2.CascadeClassifier(os.path.join(DATA_DIRECTORY, THIS_CASCADE))
 
-	for CASCADE in CASCADES:
-		loadedCascade = cv2.CascadeClassifier(os.path.join(DATA_DIR, CASCADE))
-		image_scale = 4
-		while image_scale > 0: # Try 4 different sizes of our photo
-			img_shape = np.shape(grayscale)
-			img_w = img_shape[0]
-			img_h = img_shape[1]
-			newsize = (round (img_w/image_scale), round(img_h/image_scale)) # find new size
+		########################################################################
+		# Roll through the sizes.
+		while counter > 0:
 
-			small_img = cv2.CreateImage(newsize, 8, 1)
-			cv2.Resize(grayscale, small_img, cv2.CV_INTER_LINEAR)
-			returnme = detectFaces(small_img,loadedCascade)
-			if returnme is not False:
-				return returnme
+			####################################################################
+			# Get the dimensions of the image.
+			img_shape = np.shape(image)
+			image_w = img_shape[0]
+			image_h = img_shape[1]
 
-			image_scale = image_scale - 1
-	return detectBrightest(grayscale) # no faces found, use the brightest side for orientation instead
+			####################################################################
+			# Calculate the new size for the images.
+			resize_w = round(image_w / counter)
+			resize_h = round(image_h / counter)
 
+			####################################################################
+			# Resize the image.
+			image_resized = cv2.resize(image, (resize_h, resize_w), interpolation = cv2.INTER_CUBIC)
 
+			####################################################################
+			# Send the image to the 'dectectFaces' method.
+			results = detectFaces(image_resized, cc, filename, extension, biggest)
+
+			####################################################################
+			# If we have results return the results.
+			if results is not False:
+				return results
+
+			counter = counter - 1
+
+	############################################################################
+	# If no faces are found, return 0.
+	return 0
+
+################################################################################
 # Usage Check
-if ((len(sys.argv) != 2 and len(sys.argv) != 3) or (len(sys.argv) == 3 and sys.argv[1] != '--debug')):
-	print ("USAGE: whatsup [--debug] filename")
+if ((len(sys.argv) != 2 and len(sys.argv) != 3) or (len(sys.argv) == 3)):
+	print ("USAGE: whatsup filename")
 	sys.exit(-1)
 
+################################################################################
 # Sanity check
 if not os.path.isfile(sys.argv[-1]):
-	print ("File '" + sys.argv[-1] + "' does not exist")
+	print ("File '" + sys.argv[-1] + "' not found.")
 	sys.exit(-1)
 
+################################################################################
 # Make it happen
-print (str(trydetect()))
+print (str(tryDetect(True)))
