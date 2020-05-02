@@ -112,9 +112,9 @@ def detectFaces(image, cc, filename, extension, biggest=False):
 
 	return False
 
-
-# Detect which side of the photo is brightest. Hopefully it will be the sky.
-def detectBrightest(image):
+################################################################################
+# The 'detectBrightest' function.
+def detectBrightest(image, filename, extension):
 
 	############################################################################
 	# Get the dimensions of the image.
@@ -124,7 +124,7 @@ def detectBrightest(image):
 	# Get the slices for the top, right, bottom and left regions for analysis.
 	sample_top = image[0:round(image_h/3), 0:image_w]
 	sample_right = image[0:image_h, round(2*(image_w/3)):image_w]
-	sample_bottom = image[round(2*(image_h/3)):resize_h, 0:image_w]
+	sample_bottom = image[round(2*(image_h/3)):image_h, 0:image_w]
 	sample_left = image[0:image_h, 0:round(image_w/3)]
 
 	####################################################################
@@ -143,10 +143,10 @@ def detectBrightest(image):
 	sample_left = cv2.GaussianBlur(sample_left, (5,5), cv2.BORDER_DEFAULT)
 
 	print ('**********************************************************')
-	print (filename + '_top' + str(cv2.mean(sample_top)))
-	print (filename + '_right' + str(cv2.mean(sample_right)))
-	print (filename + '_bottom' + str(cv2.mean(sample_bottom)))
-	print (filename + '_left' + str(cv2.mean(sample_left)))
+	print (filename + '_top: ' + str(cv2.mean(sample_top)[:1]))
+	print (filename + '_right: ' + str(cv2.mean(sample_right)[:1]))
+	print (filename + '_bottom: ' + str(cv2.mean(sample_bottom)[:1]))
+	print (filename + '_left: ' + str(cv2.mean(sample_left)[:1]))
 
 	# cv2.imwrite(filename + '_top' + extension, sample_top)
 	# cv2.imwrite(filename + '_right' + extension, sample_right)
@@ -260,15 +260,15 @@ def tryDetect(biggest=False):
 
 			####################################################################
 			# If we have results return the results.
-			if results is not False:
+			if False and results is not False:
 				return results
 
 			counter = counter - 1
 
 	############################################################################
 	# If no faces are found, use the brightest side for orientation instead.
-	# return detectBrightest(source_img)
-	return 0
+	return detectBrightest(image, filename, extension)
+	# return 0
 
 ################################################################################
 # Usage Check
