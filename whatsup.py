@@ -45,18 +45,6 @@ import math
 import numpy as np;
 import pathlib
 
-################################################################################
-# CV compatibility stubs
-if 'IMREAD_GRAYSCALE' not in dir(cv2):
-    # <2.4
-    cv2.IMREAD_GRAYSCALE = 0
-if 'cv' in dir(cv2):
-    # <3.0
-    cv2.CASCADE_DO_CANNY_PRUNING = cv2.cv.CV_HAAR_DO_CANNY_PRUNING
-    cv2.CASCADE_FIND_BIGGEST_OBJECT = cv2.cv.CV_HAAR_FIND_BIGGEST_OBJECT
-    cv2.FONT_HERSHEY_SIMPLEX = cv2.cv.InitFont(cv2.cv.CV_FONT_HERSHEY_SIMPLEX, 0.5, 0.5, 0, 1, cv2.cv.CV_AA)
-    cv2.LINE_AA = cv2.cv.CV_AA
-
 ############################################################################
 # Set the cascade data directory and related stuff.
 DATA_DIRECTORY = '/usr/local/lib/python3.7/site-packages/cv2/data/'
@@ -64,8 +52,8 @@ DATA_DIRECTORY = '/usr/local/lib/python3.7/site-packages/cv2/data/'
 CASCADES_TO_USE = ('haarcascade_profileface.xml', 'haarcascade_fullbody.xml', 'haarcascade_frontalface_alt.xml', 'haarcascade_frontalface_default.xml')
 
 ################################################################################
-# The 'detectFaces' function.
-def detectFaces(image, cc, filename, extension, biggest=False):
+# The 'detect_faces' function.
+def detect_faces(image, cc, filename, extension, biggest=False):
 
 	############################################################################
 	# Initialize the counter.
@@ -98,8 +86,6 @@ def detectFaces(image, cc, filename, extension, biggest=False):
 		# If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
 		if (len(faces_detected) > 0):
 			rotation = counter * 90
-			image_test = filename + '_' + str(rotation) + extension
-			cv2.imwrite(image_test, image)
 			return rotation
 
 		########################################################################
@@ -113,8 +99,56 @@ def detectFaces(image, cc, filename, extension, biggest=False):
 	return False
 
 ################################################################################
-# The 'tryDetect' function.
-def tryDetect(biggest=False):
+# The 'detect_brightest_side' function.
+def detect_brightest_side(image, filename, extension):
+
+	############################################################################
+	# Get the dimensions of the image.
+	(image_h, image_w) = image.shape[:2]
+
+	############################################################################
+	# Get the slices for the top, right, bottom and left regions for analysis.
+	sample_top = image[0:round(image_h/3), 0:image_w]
+	sample_left = image[0:image_h, 0:round(image_w/3)]
+	sample_bottom = image[round(2*(image_h/3)):image_h, 0:image_w]
+	sample_right = image[0:image_h, round(2*(image_w/3)):image_w]
+
+	####################################################################
+	# Resize the sample images to 10x10 to average things out
+	resize = (10, 10)
+	sample_top = cv2.resize(sample_top, resize, interpolation = cv2.INTER_CUBIC)
+	sample_left = cv2.resize(sample_left, resize, interpolation = cv2.INTER_CUBIC)
+	sample_bottom = cv2.resize(sample_bottom, resize, interpolation = cv2.INTER_CUBIC)
+	sample_right = cv2.resize(sample_right, resize, interpolation = cv2.INTER_CUBIC)
+
+	####################################################################
+	# Blur the images to even further average things out.
+	sample_top = cv2.GaussianBlur(sample_top, (5,5), cv2.BORDER_DEFAULT)
+	sample_left = cv2.GaussianBlur(sample_left, (5,5), cv2.BORDER_DEFAULT)
+	sample_bottom = cv2.GaussianBlur(sample_bottom, (5,5), cv2.BORDER_DEFAULT)
+	sample_right = cv2.GaussianBlur(sample_right, (5,5), cv2.BORDER_DEFAULT)
+
+	####################################################################
+	# Build a mapping of those samples.
+	sides = {}
+	sides['top'] = cv2.mean(sample_top)[0]
+	sides['left'] = cv2.mean(sample_left)[0]
+	sides['bottom'] = cv2.mean(sample_bottom)[0]
+	sides['right'] = cv2.mean(sample_right)[0]
+
+	####################################################################
+	# Get the max value from the sides.
+	max_side = max(sides, key = sides.get)
+
+	####################################################################
+	# Set the mapping for rotation values.
+	rotation = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
+
+	return rotation[max_side]
+
+################################################################################
+# The 'try_detect' function.
+def try_detect(biggest=False):
 
 	############################################################################
 	# Set the filename from the input argument.
@@ -161,22 +195,20 @@ def tryDetect(biggest=False):
 
 			####################################################################
 			# Get the dimensions of the image.
-			img_shape = np.shape(image)
-			image_w = img_shape[0]
-			image_h = img_shape[1]
+			image_h, image_w = image.shape[:2]
 
 			####################################################################
 			# Calculate the new size for the images.
-			resize_w = round(image_w / counter)
 			resize_h = round(image_h / counter)
+			resize_w = round(image_w / counter)
 
 			####################################################################
 			# Resize the image.
-			image_resized = cv2.resize(image, (resize_h, resize_w), interpolation = cv2.INTER_CUBIC)
+			image_resized = cv2.resize(image, (resize_w, resize_h), interpolation = cv2.INTER_CUBIC)
 
 			####################################################################
 			# Send the image to the 'dectectFaces' method.
-			results = detectFaces(image_resized, cc, filename, extension, biggest)
+			results = detect_faces(image_resized, cc, filename, extension, biggest)
 
 			####################################################################
 			# If we have results return the results.
@@ -186,8 +218,40 @@ def tryDetect(biggest=False):
 			counter = counter - 1
 
 	############################################################################
-	# If no faces are found, return 0.
-	return 0
+	# If no faces are found, use the brightest side for orientation instead.
+	return detect_brightest_side(image, filename, extension)
+
+################################################################################
+# The 'rotate_image' function.
+# Source: https://stackoverflow.com/a/58127701/117259
+def rotate_image(image, angle):
+
+	############################################################################
+	# Grab the dimensions of the image and then determine the center
+	(image_h, image_w) = image.shape[:2]
+	(cX, cY) = (image_w / 2, image_h / 2)
+
+	############################################################################
+	# Grab the rotation matrix (applying the negative of the
+	# angle to rotate clockwise), then grab the sine and cosine
+	# (i.e., the rotation components of the matrix)
+	M = cv2.getRotationMatrix2D((cX, cY), -angle, 1.0)
+	cos = np.abs(M[0, 0])
+	sin = np.abs(M[0, 1])
+
+	############################################################################
+	# Compute the new bounding dimensions of the image
+	nW = int((image_h * sin) + (image_w * cos))
+	nH = int((image_h * cos) + (image_w * sin))
+
+	############################################################################
+	# Adjust the rotation matrix to take into account translation
+	M[0, 2] += (nW / 2) - cX
+	M[1, 2] += (nH / 2) - cY
+
+	############################################################################
+	# Perform the actual rotation and return the image
+	return cv2.warpAffine(image, M, (nW, nH))
 
 ################################################################################
 # Usage Check
@@ -202,5 +266,22 @@ if not os.path.isfile(sys.argv[-1]):
 	sys.exit(-1)
 
 ################################################################################
-# Make it happen
-print (str(tryDetect(True)))
+# And here’s where we invoke it and get the the output.
+rotation = int(try_detect(True))
+
+################################################################################
+# Now, return the output.
+print (rotation)
+
+############################################################################
+# TODO: Some simple debugging. Don’t use Python to do image writing.
+# Instead use the output with a batch processor like ImageMagick.
+debug = False
+if debug:
+	filename = pathlib.Path(sys.argv[-1]).stem
+	extension = pathlib.Path(sys.argv[-1]).suffix
+	image_path = os.path.abspath(sys.argv[-1])
+	image = cv2.imread(image_path)
+	image = rotate_image(image, rotation)
+	image_test = filename + '_' + str(rotation) + extension
+	cv2.imwrite(image_test, image)
