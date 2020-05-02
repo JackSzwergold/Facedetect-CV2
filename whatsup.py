@@ -60,7 +60,8 @@ if 'cv' in dir(cv2):
 ############################################################################
 # Set the cascade data directory and related stuff.
 DATA_DIRECTORY = '/usr/local/lib/python3.7/site-packages/cv2/data/'
-CASCADES_TO_USE = ('haarcascade_frontalface_default.xml', 'haarcascade_frontalface_alt2.xml')
+# CASCADES_TO_USE = ('haarcascade_frontalface_alt.xml', 'haarcascade_profileface.xml', 'haarcascade_fullbody.xml')
+CASCADES_TO_USE = ('haarcascade_profileface.xml', 'haarcascade_fullbody.xml', 'haarcascade_frontalface_alt.xml', 'haarcascade_frontalface_default.xml')
 
 ################################################################################
 # The 'detectFaces' function.
