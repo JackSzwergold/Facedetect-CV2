@@ -276,7 +276,7 @@ print (rotation)
 ############################################################################
 # TODO: Some simple debugging. Don’t use Python to do image writing.
 # Instead use the output with a batch processor like ImageMagick.
-debug = True
+debug = False
 if debug:
 	filename = pathlib.Path(sys.argv[-1]).stem
 	extension = pathlib.Path(sys.argv[-1]).suffix
