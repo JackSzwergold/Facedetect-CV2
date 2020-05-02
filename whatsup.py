@@ -89,9 +89,15 @@ def detectFaces(image, cc):
 ################################################################################
 # The 'detectBrightest' function.
 def detectBrightest(image):
+
 	image_scale = 4 # This scale factor doesn't matter much. It just gives us less pixels to iterate over later
-	newsize = (cv2.Round(image.width/image_scale), cv2.Round(image.height/image_scale)) # find new size
+
+	newsize = (round(image.width/image_scale), round(image.height/image_scale)) # find new size
+
 	image_resized = cv2.CreateImage(newsize, 8, 1)
+	image_resized = cv2.resize(image, (resize_h, resize_w), interpolation = cv2.INTER_CUBIC)
+
+
 	cv2.Resize(image, image_resized, cv2.CV_INTER_LINEAR)
 
 	############################################################################
@@ -148,7 +154,7 @@ def tryDetect():
 	############################################################################
 	# Load the image into the script.
 	cv2.IMREAD_GRAYSCALE = 0
-	source_img = cv2.imread(image_path) # the image itself
+	image = cv2.imread(image_path) # the image itself
 
 	############################################################################
 	# Set the cascade data directories stuff.
@@ -169,7 +175,7 @@ def tryDetect():
 
 			####################################################################
 			# Get the dimensions of the image.
-			img_shape = np.shape(source_img)
+			img_shape = np.shape(image)
 			image_w = img_shape[0]
 			image_h = img_shape[1]
 
@@ -180,7 +186,7 @@ def tryDetect():
 
 			####################################################################
 			# Resize the image.
-			image_resized = cv2.resize(source_img, (resize_h, resize_w), interpolation = cv2.INTER_CUBIC)
+			image_resized = cv2.resize(image, (resize_h, resize_w), interpolation = cv2.INTER_CUBIC)
 
 			####################################################################
 			# Write the image for debugging.
@@ -200,7 +206,7 @@ def tryDetect():
 
 	############################################################################
 	# no faces found, use the brightest side for orientation instead
-	return detectBrightest(source_img)
+	return detectBrightest(image)
 
 ################################################################################
 # Usage Check
