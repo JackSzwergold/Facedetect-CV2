@@ -161,20 +161,20 @@ def tryDetect(biggest=False):
 
 			####################################################################
 			# Get the dimensions of the image.
-			image_w, image_h = image.shape[:2]
+			image_h, image_w = image.shape[:2]
 
 			####################################################################
 			# Calculate the new size for the images.
-			resize_w = round(image_w / counter)
 			resize_h = round(image_h / counter)
+			resize_w = round(image_w / counter)
 
 			####################################################################
 			# Resize the image.
-			image_resized = cv2.resize(image, (resize_h, resize_w), interpolation = cv2.INTER_CUBIC)
+			image_resized = cv2.resize(image, (resize_w, resize_h), interpolation = cv2.INTER_CUBIC)
 
 			####################################################################
 			# Send the image to the 'dectectFaces' method.
-			image_test = image_resized[0:(resize_w/2), 0:(resize_h/2)]
+			image_test = image_resized[0:resize_h, 0:resize_w]
 			image_test_filename = filename + '_zzzz' + extension
 			cv2.imwrite(image_test_filename, image_test)
 
