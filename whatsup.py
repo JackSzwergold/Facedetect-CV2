@@ -50,7 +50,7 @@ def detectFaces(image, cc):
 
 	############################################################################
 	# Initialize the counter.
-	counter = 0
+	counter = 1
 
 	############################################################################
 	# Set the min and max image size.
@@ -65,7 +65,7 @@ def detectFaces(image, cc):
 
 	############################################################################
 	# Roll through the rotations to use.
-	while counter < 4:
+	while counter <= 4:
 
 		########################################################################
 		# Attempt to detect some faces.
@@ -74,6 +74,8 @@ def detectFaces(image, cc):
 		########################################################################
 		# If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
 		if (len(faces) > 0):
+			image_test = 'filename' + '_' + str(counter * 90) + '.jpg'
+			cv2.imwrite(image_test, image)
 			return counter * 90
 
 		########################################################################
@@ -184,8 +186,8 @@ def tryDetect():
 
 			####################################################################
 			# Write the image for debugging.
-			image_test = filename + '_' + str(resize_w) + 'x' + str(resize_h) + extension
-			cv2.imwrite(image_test, image_resized)
+			# image_test = filename + '_' + str(resize_w) + 'x' + str(resize_h) + extension
+			# cv2.imwrite(image_test, image_resized)
 
 			####################################################################
 			# Send the image to the 'dectectFaces' method.
