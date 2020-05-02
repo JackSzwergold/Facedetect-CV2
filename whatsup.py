@@ -113,45 +113,40 @@ def detect_brightest_side(image, filename, extension):
 
 	############################################################################
 	# Set the tuple for resize dimensions.
-	resize = (10, 10)
+	resize = (5, 5)
 
 	############################################################################
 	# Set the tuple for kernel size.
 	blur_kernel = (5, 5)
+
+	####################################################################
+	# Set the mapping for rotation values.
+	rotation = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
 
 	############################################################################
 	# Get the dimensions of the image.
 	(image_h, image_w) = image.shape[:2]
 
 	####################################################################
-	# Slice and resize the sample images to 10x10 to average things out
-	sample_top = image[0:round(image_h / ratio), 0:image_w]
-	sample_left = image[0:image_h, 0:round(image_w / ratio)]
-	sample_bottom = image[round(boundary * (image_h / ratio)):image_h, 0:image_w]
-	sample_right = image[0:image_h, round(boundary * (image_w / ratio)):image_w]
+	# Get sample chunks.
+	chunks = {}
+	chunks['top'] = image[0:round(image_h / ratio), 0:image_w]
+	chunks['left'] = image[0:image_h, 0:round(image_w / ratio)]
+	chunks['bottom'] = image[round(boundary * (image_h / ratio)):image_h, 0:image_w]
+	chunks['right'] = image[0:image_h, round(boundary * (image_w / ratio)):image_w]
 
 	####################################################################
-	# Blur the images to even further average things out.
+	# Resize and blur the images to average things out.
 	samples = {}
-	samples['top'] = cv2.GaussianBlur(cv2.resize(sample_top, resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT)
-	samples['left'] = cv2.GaussianBlur(cv2.resize(sample_left, resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT)
-	samples['bottom'] = cv2.GaussianBlur(cv2.resize(sample_bottom, resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT)
-	samples['right'] = cv2.GaussianBlur(cv2.resize(sample_right, resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT)
-
-	####################################################################
-	# Build a mapping of the sides for those samples.
-	sides = {}
-	for position in samples:
-		sides[position] = cv2.mean(samples[position])[0]
+	for position in chunks:
+		samples[position] = cv2.mean(cv2.GaussianBlur(cv2.resize(chunks[position], resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT))[0]
 
 	####################################################################
 	# Get the max value from the sides.
-	max_side = max(sides, key = sides.get)
+	max_side = max(samples, key = sides.get)
 
 	####################################################################
-	# Set the mapping for rotation values.
-	rotation = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
-
+	# Return the final return value.
 	return rotation[max_side]
 
 ################################################################################
