@@ -143,10 +143,10 @@ def detectBrightest(image, filename, extension):
 	sample_left = cv2.GaussianBlur(sample_left, (5,5), cv2.BORDER_DEFAULT)
 
 	print ('**********************************************************')
-	print (filename + '_top: ' + str(cv2.mean(sample_top)[:1]))
-	print (filename + '_right: ' + str(cv2.mean(sample_right)[:1]))
-	print (filename + '_bottom: ' + str(cv2.mean(sample_bottom)[:1]))
-	print (filename + '_left: ' + str(cv2.mean(sample_left)[:1]))
+	print (filename + '_top: ' + str(cv2.mean(sample_top)))
+	print (filename + '_right: ' + str(cv2.mean(sample_right)))
+	print (filename + '_bottom: ' + str(cv2.mean(sample_bottom)))
+	print (filename + '_left: ' + str(cv2.mean(sample_left)))
 
 	# cv2.imwrite(filename + '_top' + extension, sample_top)
 	# cv2.imwrite(filename + '_right' + extension, sample_right)
