@@ -139,12 +139,10 @@ def detect_brightest_side(image, filename, extension):
 	samples['right'] = cv2.GaussianBlur(cv2.resize(sample_right, resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT)
 
 	####################################################################
-	# Build a mapping of those samples.
+	# Build a mapping of the sides for those samples.
 	sides = {}
-	sides['top'] = cv2.mean(samples['top'])[0]
-	sides['left'] = cv2.mean(samples['left'])[0]
-	sides['bottom'] = cv2.mean(samples['bottom'])[0]
-	sides['right'] = cv2.mean(samples['right'])[0]
+	for position in samples:
+		sides[position] = cv2.mean(samples[position])[0]
 
 	####################################################################
 	# Get the max value from the sides.
