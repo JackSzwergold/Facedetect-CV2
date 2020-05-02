@@ -112,38 +112,39 @@ def detect_brightest_side(image, filename, extension):
 	boundary = (ratio - 1)
 
 	############################################################################
+	# Set the tuple for resize dimensions.
+	resize = (10, 10)
+
+	############################################################################
+	# Set the tuple for kernel size.
+	blur_kernel = (5, 5)
+
+	############################################################################
 	# Get the dimensions of the image.
 	(image_h, image_w) = image.shape[:2]
 
-	############################################################################
-	# Get the slices for the top, right, bottom and left regions for analysis.
+	####################################################################
+	# Slice and resize the sample images to 10x10 to average things out
 	sample_top = image[0:round(image_h / ratio), 0:image_w]
 	sample_left = image[0:image_h, 0:round(image_w / ratio)]
 	sample_bottom = image[round(boundary * (image_h / ratio)):image_h, 0:image_w]
 	sample_right = image[0:image_h, round(boundary * (image_w / ratio)):image_w]
 
 	####################################################################
-	# Resize the sample images to 10x10 to average things out
-	resize = (10, 10)
-	sample_top = cv2.resize(sample_top, resize, interpolation = cv2.INTER_CUBIC)
-	sample_left = cv2.resize(sample_left, resize, interpolation = cv2.INTER_CUBIC)
-	sample_bottom = cv2.resize(sample_bottom, resize, interpolation = cv2.INTER_CUBIC)
-	sample_right = cv2.resize(sample_right, resize, interpolation = cv2.INTER_CUBIC)
-
-	####################################################################
 	# Blur the images to even further average things out.
-	sample_top = cv2.GaussianBlur(sample_top, (5,5), cv2.BORDER_DEFAULT)
-	sample_left = cv2.GaussianBlur(sample_left, (5,5), cv2.BORDER_DEFAULT)
-	sample_bottom = cv2.GaussianBlur(sample_bottom, (5,5), cv2.BORDER_DEFAULT)
-	sample_right = cv2.GaussianBlur(sample_right, (5,5), cv2.BORDER_DEFAULT)
+	samples = {}
+	samples['top'] = cv2.GaussianBlur(cv2.resize(sample_top, resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT)
+	samples['left'] = cv2.GaussianBlur(cv2.resize(sample_left, resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT)
+	samples['bottom'] = cv2.GaussianBlur(cv2.resize(sample_bottom, resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT)
+	samples['right'] = cv2.GaussianBlur(cv2.resize(sample_right, resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT)
 
 	####################################################################
 	# Build a mapping of those samples.
 	sides = {}
-	sides['top'] = cv2.mean(sample_top)[0]
-	sides['left'] = cv2.mean(sample_left)[0]
-	sides['bottom'] = cv2.mean(sample_bottom)[0]
-	sides['right'] = cv2.mean(sample_right)[0]
+	sides['top'] = cv2.mean(samples['top'])[0]
+	sides['left'] = cv2.mean(samples['left'])[0]
+	sides['bottom'] = cv2.mean(samples['bottom'])[0]
+	sides['right'] = cv2.mean(samples['right'])[0]
 
 	####################################################################
 	# Get the max value from the sides.
