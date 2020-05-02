@@ -98,8 +98,6 @@ def detectFaces(image, cc, filename, extension, biggest=False):
 		# If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
 		if (len(faces_detected) > 0):
 			rotation = counter * 90
-			image_test = filename + '_' + str(rotation) + extension
-			cv2.imwrite(image_test, image)
 			return rotation
 
 		########################################################################
