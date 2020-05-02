@@ -36,7 +36,8 @@
 ################################################################################
 
 ################################################################################
-# Import various modules.
+# Import various modules and functions.
+from __future__ import print_function, division, generators, unicode_literals
 import sys
 import os
 import cv2
@@ -45,8 +46,25 @@ import numpy as np;
 import pathlib
 
 ################################################################################
+# CV compatibility stubs
+if 'IMREAD_GRAYSCALE' not in dir(cv2):
+    # <2.4
+    cv2.IMREAD_GRAYSCALE = 0
+if 'cv' in dir(cv2):
+    # <3.0
+    cv2.CASCADE_DO_CANNY_PRUNING = cv2.cv.CV_HAAR_DO_CANNY_PRUNING
+    cv2.CASCADE_FIND_BIGGEST_OBJECT = cv2.cv.CV_HAAR_FIND_BIGGEST_OBJECT
+    cv2.FONT_HERSHEY_SIMPLEX = cv2.cv.InitFont(cv2.cv.CV_FONT_HERSHEY_SIMPLEX, 0.5, 0.5, 0, 1, cv2.cv.CV_AA)
+    cv2.LINE_AA = cv2.cv.CV_AA
+
+############################################################################
+# Set the cascade data directory and related stuff.
+DATA_DIRECTORY = '/usr/local/lib/python3.7/site-packages/cv2/data/'
+CASCADES_TO_USE = ('haarcascade_frontalface_default.xml', 'haarcascade_frontalface_alt2.xml')
+
+################################################################################
 # The 'detectFaces' function.
-def detectFaces(image, cc, filename, extension):
+def detectFaces(image, cc, filename, extension, biggest=False):
 
 	############################################################################
 	# Initialize the counter.
@@ -61,7 +79,11 @@ def detectFaces(image, cc, filename, extension):
 	############################################################################
 	# Set the CV2 flags.
 	flags = cv2.CASCADE_DO_CANNY_PRUNING
-	# flags = cv2.CASCADE_SCALE_IMAGE
+
+	############################################################################
+	# If we are looking for the biggest face, set that flag.
+	if biggest:
+		flags |= cv2.CASCADE_FIND_BIGGEST_OBJECT
 
 	############################################################################
 	# Roll through the rotations to use.
@@ -75,9 +97,9 @@ def detectFaces(image, cc, filename, extension):
 		# If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
 		if (len(faces_detected) > 0):
 			rotation = counter * 90
-			# image_test = filename + '_' + str(rotation) + extension
-			# cv2.imwrite(image_test, image)
-			return crotation
+			image_test = filename + '_' + str(rotation) + extension
+			cv2.imwrite(image_test, image)
+			return rotation
 
 		########################################################################
 		# Rotate the image 90 degrees clockwise.
@@ -91,7 +113,7 @@ def detectFaces(image, cc, filename, extension):
 
 ################################################################################
 # The 'tryDetect' function.
-def tryDetect():
+def tryDetect(biggest=False):
 
 	############################################################################
 	# Set the filename from the input argument.
@@ -108,15 +130,15 @@ def tryDetect():
 
 	############################################################################
 	# Load the image into the script.
-	cv2.IMREAD_GRAYSCALE = 0
-	image = cv2.imread(image_path) # the image itself
+	image = cv2.imread(image_path)
 
 	############################################################################
-	# Set the cascade data directories stuff.
-	data_directory = '/usr/local/lib/python3.7/site-packages/cv2/data/'
-	cascades_to_use = ('haarcascade_frontalface_alt.xml', 'haarcascade_profileface.xml', 'haarcascade_fullbody.xml')
+	# Convert the image to grayscale.
+	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-	for this_cascade in cascades_to_use:
+	############################################################################
+	# Roll through the cascades.
+	for THIS_CASCADE in CASCADES_TO_USE:
 
 		########################################################################
 		# Initialize the counter.
@@ -124,7 +146,7 @@ def tryDetect():
 
 		########################################################################
 		# Define the cascade classifier.
-		cc = cv2.CascadeClassifier(os.path.join(data_directory, this_cascade))
+		cc = cv2.CascadeClassifier(os.path.join(DATA_DIRECTORY, THIS_CASCADE))
 
 		########################################################################
 		# Roll through the sizes.
@@ -147,7 +169,7 @@ def tryDetect():
 
 			####################################################################
 			# Send the image to the 'dectectFaces' method.
-			results = detectFaces(image_resized, cc, filename, extension)
+			results = detectFaces(image_resized, cc, filename, extension, biggest)
 
 			####################################################################
 			# If we have results return the results.
