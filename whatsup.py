@@ -45,7 +45,11 @@ import math
 import numpy as np;
 import pathlib
 
-############################################################################
+################################################################################
+# Enable debug mode.
+debug = True
+
+################################################################################
 # Set the cascade data directory and related stuff.
 DATA_DIRECTORY = '/usr/local/lib/python3.7/site-packages/cv2/data/'
 # CASCADES_TO_USE = ('haarcascade_frontalface_alt.xml', 'haarcascade_profileface.xml', 'haarcascade_fullbody.xml')
@@ -103,47 +107,46 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 def detect_brightest_side(image, filename, extension):
 
 	############################################################################
+	# Set the ratio used to slice up the image.
+	ratio = 3
+	boundary = (ratio - 1)
+
+	############################################################################
+	# Set the tuple for resize dimensions.
+	resize = (5, 5)
+
+	############################################################################
+	# Set the tuple for kernel size.
+	blur_kernel = (5, 5)
+
+	############################################################################
+	# Set the mapping for rotation values.
+	rotation = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
+
+	############################################################################
 	# Get the dimensions of the image.
 	(image_h, image_w) = image.shape[:2]
 
 	############################################################################
-	# Get the slices for the top, right, bottom and left regions for analysis.
-	sample_top = image[0:round(image_h/3), 0:image_w]
-	sample_left = image[0:image_h, 0:round(image_w/3)]
-	sample_bottom = image[round(2*(image_h/3)):image_h, 0:image_w]
-	sample_right = image[0:image_h, round(2*(image_w/3)):image_w]
+	# Get sample chunks.
+	chunks = {}
+	chunks['top'] = image[0:round(image_h / ratio), 0:image_w]
+	chunks['left'] = image[0:image_h, 0:round(image_w / ratio)]
+	chunks['bottom'] = image[round(boundary * (image_h / ratio)):image_h, 0:image_w]
+	chunks['right'] = image[0:image_h, round(boundary * (image_w / ratio)):image_w]
 
 	####################################################################
-	# Resize the sample images to 10x10 to average things out
-	resize = (10, 10)
-	sample_top = cv2.resize(sample_top, resize, interpolation = cv2.INTER_CUBIC)
-	sample_left = cv2.resize(sample_left, resize, interpolation = cv2.INTER_CUBIC)
-	sample_bottom = cv2.resize(sample_bottom, resize, interpolation = cv2.INTER_CUBIC)
-	sample_right = cv2.resize(sample_right, resize, interpolation = cv2.INTER_CUBIC)
+	# Resize and blur the images to average things out.
+	samples = {}
+	for position in chunks:
+		samples[position] = cv2.mean(cv2.GaussianBlur(cv2.resize(chunks[position], resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT))[0]
 
-	####################################################################
-	# Blur the images to even further average things out.
-	sample_top = cv2.GaussianBlur(sample_top, (5,5), cv2.BORDER_DEFAULT)
-	sample_left = cv2.GaussianBlur(sample_left, (5,5), cv2.BORDER_DEFAULT)
-	sample_bottom = cv2.GaussianBlur(sample_bottom, (5,5), cv2.BORDER_DEFAULT)
-	sample_right = cv2.GaussianBlur(sample_right, (5,5), cv2.BORDER_DEFAULT)
-
-	####################################################################
-	# Build a mapping of those samples.
-	sides = {}
-	sides['top'] = cv2.mean(sample_top)[0]
-	sides['left'] = cv2.mean(sample_left)[0]
-	sides['bottom'] = cv2.mean(sample_bottom)[0]
-	sides['right'] = cv2.mean(sample_right)[0]
-
-	####################################################################
+	############################################################################
 	# Get the max value from the sides.
-	max_side = max(sides, key = sides.get)
+	max_side = max(samples, key = sides.get)
 
-	####################################################################
-	# Set the mapping for rotation values.
-	rotation = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
-
+	############################################################################
+	# Return the final return value.
 	return rotation[max_side]
 
 ################################################################################
@@ -212,7 +215,7 @@ def try_detect(biggest=False):
 
 			####################################################################
 			# If we have results return the results.
-			if results is not False:
+			if False and results is not False:
 				return results
 
 			counter = counter - 1
@@ -255,7 +258,7 @@ def rotate_image(image, angle):
 
 ################################################################################
 # Usage Check
-if ((len(sys.argv) != 2 and len(sys.argv) != 3) or (len(sys.argv) == 3)):
+if (len(sys.argv) != 2):
 	print ("USAGE: whatsup filename")
 	sys.exit(-1)
 
@@ -273,10 +276,9 @@ rotation = int(try_detect(True))
 # Now, return the output.
 print (rotation)
 
-############################################################################
+################################################################################
 # TODO: Some simple debugging. Don’t use Python to do image writing.
 # Instead use the output with a batch processor like ImageMagick.
-debug = False
 if debug:
 	filename = pathlib.Path(sys.argv[-1]).stem
 	extension = pathlib.Path(sys.argv[-1]).suffix
