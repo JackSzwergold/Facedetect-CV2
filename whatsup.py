@@ -181,8 +181,8 @@ def detectBrightest(image, filename, extension):
 	# returns = {'top':0, 'left':90, 'bottom':180, 'right':270}
 	#
 	# # return the winner
-	# return returns[winning]
-	return
+
+	return returns[max_side]
 
 ################################################################################
 # The 'tryDetect' function.
