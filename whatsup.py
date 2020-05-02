@@ -174,14 +174,37 @@ def tryDetect(biggest=False):
 
 			####################################################################
 			# TODO: Getting the slices for the top, right, bottom and left regions for analysis.
-			image_top = image_resized[0:round(resize_h/4), 0:resize_w]
-			image_right = image_resized[0:resize_h, round(3*(resize_w/4)):resize_w]
-			image_bottom = image_resized[round(3*(resize_h/4)):resize_h, 0:resize_w]
-			image_left = image_resized[0:resize_h, 0:round(resize_w/4)]
-			cv2.imwrite(filename + '_top' + extension, image_top)
-			cv2.imwrite(filename + '_right' + extension, image_right)
-			cv2.imwrite(filename + '_bottom' + extension, image_bottom)
-			cv2.imwrite(filename + '_left' + extension, image_left)
+			sample_top = image_resized[0:round(resize_h/4), 0:resize_w]
+			sample_right = image_resized[0:resize_h, round(3*(resize_w/4)):resize_w]
+			sample_bottom = image_resized[round(3*(resize_h/4)):resize_h, 0:resize_w]
+			sample_left = image_resized[0:resize_h, 0:round(resize_w/4)]
+
+			sample_resize = (10, 10)
+			sample_top = cv2.resize(sample_top, sample_resize, interpolation = cv2.INTER_CUBIC)
+			sample_right = cv2.resize(sample_right, sample_resize, interpolation = cv2.INTER_CUBIC)
+			sample_bottom = cv2.resize(sample_bottom, sample_resize, interpolation = cv2.INTER_CUBIC)
+			sample_left = cv2.resize(sample_left, sample_resize, interpolation = cv2.INTER_CUBIC)
+
+			# sample_kernel = np.ones( (5, 5), np.float32) / 25
+			# sample_top = cv2.filter2D(sample_top, -1, sample_kernel)
+			# sample_right = cv2.filter2D(sample_right, -1, sample_kernel)
+			# sample_bottom = cv2.filter2D(sample_bottom, -1, sample_kernel)
+			# sample_left = cv2.filter2D(sample_left, -1, sample_kernel)
+			sample_top = cv2.GaussianBlur(sample_top, (5,5), cv2.BORDER_DEFAULT)
+			sample_right = cv2.GaussianBlur(sample_right, (5,5), cv2.BORDER_DEFAULT)
+			sample_bottom = cv2.GaussianBlur(sample_bottom, (5,5), cv2.BORDER_DEFAULT)
+			sample_left = cv2.GaussianBlur(sample_left, (5,5), cv2.BORDER_DEFAULT)
+
+			print ('**********************************************************')
+			print (filename + '_top' + str(cv2.mean(sample_top)))
+			print (filename + '_right' + str(cv2.mean(sample_right)))
+			print (filename + '_bottom' + str(cv2.mean(sample_bottom)))
+			print (filename + '_left' + str(cv2.mean(sample_left)))
+
+			cv2.imwrite(filename + '_top' + extension, sample_top)
+			cv2.imwrite(filename + '_right' + extension, sample_right)
+			cv2.imwrite(filename + '_bottom' + extension, sample_bottom)
+			cv2.imwrite(filename + '_left' + extension, sample_left)
 
 			####################################################################
 			# Send the image to the 'dectectFaces' method.
