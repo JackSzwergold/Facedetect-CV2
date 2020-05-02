@@ -48,14 +48,14 @@ import pathlib
 ################################################################################
 # CV compatibility stubs
 if 'IMREAD_GRAYSCALE' not in dir(cv2):
-    # <2.4
-    cv2.IMREAD_GRAYSCALE = 0
+	# <2.4
+	cv2.IMREAD_GRAYSCALE = 0
 if 'cv' in dir(cv2):
-    # <3.0
-    cv2.CASCADE_DO_CANNY_PRUNING = cv2.cv.CV_HAAR_DO_CANNY_PRUNING
-    cv2.CASCADE_FIND_BIGGEST_OBJECT = cv2.cv.CV_HAAR_FIND_BIGGEST_OBJECT
-    cv2.FONT_HERSHEY_SIMPLEX = cv2.cv.InitFont(cv2.cv.CV_FONT_HERSHEY_SIMPLEX, 0.5, 0.5, 0, 1, cv2.cv.CV_AA)
-    cv2.LINE_AA = cv2.cv.CV_AA
+	# <3.0
+	cv2.CASCADE_DO_CANNY_PRUNING = cv2.cv.CV_HAAR_DO_CANNY_PRUNING
+	cv2.CASCADE_FIND_BIGGEST_OBJECT = cv2.cv.CV_HAAR_FIND_BIGGEST_OBJECT
+	cv2.FONT_HERSHEY_SIMPLEX = cv2.cv.InitFont(cv2.cv.CV_FONT_HERSHEY_SIMPLEX, 0.5, 0.5, 0, 1, cv2.cv.CV_AA)
+	cv2.LINE_AA = cv2.cv.CV_AA
 
 ############################################################################
 # Set the cascade data directory and related stuff.
@@ -174,9 +174,10 @@ def tryDetect(biggest=False):
 
 			####################################################################
 			# Send the image to the 'dectectFaces' method.
-			image_top = image_resized[0:round(resize_h/2), 0:resize_w]
-			image_top_filename = filename + '_top' + extension
-			cv2.imwrite(image_top_filename, image_top)
+			image_top = image_resized[0:round(resize_h/4), 0:resize_w]
+			image_bottom = image_resized[0:round(resize_h/4), 0:resize_w]
+			cv2.imwrite(filename + '_top' + extension, image_top)
+			cv2.imwrite(filename + '_bottom' + extension, image_bottom)
 
 			####################################################################
 			# Send the image to the 'dectectFaces' method.
