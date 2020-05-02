@@ -134,6 +134,12 @@ def tryDetect(biggest=False):
 	image = cv2.imread(image_path)
 
 	############################################################################
+	# Adjust contrast and brightness: Contrast (1.0-3.0), Brightness (0-100)
+	contrast = 1.25
+	brightness = 0
+	image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
+
+	############################################################################
 	# Convert the image to grayscale.
 	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -197,4 +203,4 @@ if not os.path.isfile(sys.argv[-1]):
 
 ################################################################################
 # Make it happen
-print (str(tryDetect()))
+print (str(tryDetect(True)))
