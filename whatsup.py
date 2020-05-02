@@ -47,7 +47,7 @@ import pathlib
 
 ################################################################################
 # Enable debug mode.
-debug = True
+debug = False
 
 ################################################################################
 # Set the cascade data directory and related stuff.
@@ -215,7 +215,7 @@ def try_detect(biggest=False):
 
 			####################################################################
 			# If we have results return the results.
-			if False and results is not False:
+			if results is not False:
 				return results
 
 			counter = counter - 1
