@@ -278,11 +278,11 @@ if not os.path.isfile(sys.argv[-1]):
 	sys.exit(-1)
 
 ################################################################################
-# And here’s where we invoke it.
+# And here’s where we invoke it and get the the output.
 rotation = int(try_detect(True))
 
 ################################################################################
-# Return the output.
+# Now, return the output.
 print (rotation)
 
 ############################################################################
