@@ -45,6 +45,10 @@ import math
 import numpy as np;
 import pathlib
 
+################################################################################
+# Enable debug mode.
+debug = True
+
 ############################################################################
 # Set the cascade data directory and related stuff.
 DATA_DIRECTORY = '/usr/local/lib/python3.7/site-packages/cv2/data/'
@@ -255,7 +259,7 @@ def rotate_image(image, angle):
 
 ################################################################################
 # Usage Check
-if ((len(sys.argv) != 2 and len(sys.argv) != 3) or (len(sys.argv) == 3)):
+if (len(sys.argv) != 2):
 	print ("USAGE: whatsup filename")
 	sys.exit(-1)
 
@@ -276,7 +280,6 @@ print (rotation)
 ############################################################################
 # TODO: Some simple debugging. Don’t use Python to do image writing.
 # Instead use the output with a batch processor like ImageMagick.
-debug = False
 if debug:
 	filename = pathlib.Path(sys.argv[-1]).stem
 	extension = pathlib.Path(sys.argv[-1]).suffix
