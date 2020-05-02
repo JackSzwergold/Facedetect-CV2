@@ -64,8 +64,8 @@ DATA_DIRECTORY = '/usr/local/lib/python3.7/site-packages/cv2/data/'
 CASCADES_TO_USE = ('haarcascade_profileface.xml', 'haarcascade_fullbody.xml', 'haarcascade_frontalface_alt.xml', 'haarcascade_frontalface_default.xml')
 
 ################################################################################
-# The 'detectFaces' function.
-def detectFaces(image, cc, filename, extension, biggest=False):
+# The 'detect_faces' function.
+def detect_faces(image, cc, filename, extension, biggest=False):
 
 	############################################################################
 	# Initialize the counter.
@@ -111,12 +111,12 @@ def detectFaces(image, cc, filename, extension, biggest=False):
 	return False
 
 ################################################################################
-# The 'detectBrightest' function.
-def detectBrightest(image, filename, extension):
+# The 'detect_brightest_side' function.
+def detect_brightest_side(image, filename, extension):
 
 	############################################################################
 	# Get the dimensions of the image.
-	image_h, image_w = image.shape[:2]
+	(image_h, image_w) = image.shape[:2]
 
 	############################################################################
 	# Get the slices for the top, right, bottom and left regions for analysis.
@@ -159,8 +159,8 @@ def detectBrightest(image, filename, extension):
 	return rotation[max_side]
 
 ################################################################################
-# The 'tryDetect' function.
-def tryDetect(biggest=False):
+# The 'try_detect' function.
+def try_detect(biggest=False):
 
 	############################################################################
 	# Set the filename from the input argument.
@@ -220,19 +220,50 @@ def tryDetect(biggest=False):
 
 			####################################################################
 			# Send the image to the 'dectectFaces' method.
-			results = detectFaces(image_resized, cc, filename, extension, biggest)
+			results = detect_faces(image_resized, cc, filename, extension, biggest)
 
 			####################################################################
 			# If we have results return the results.
-			if False and results is not False:
+			if results is not False:
 				return results
 
 			counter = counter - 1
 
 	############################################################################
 	# If no faces are found, use the brightest side for orientation instead.
-	return detectBrightest(image, filename, extension)
-	# return 0
+	return detect_brightest_side(image, filename, extension)
+
+################################################################################
+# The 'rotate_image' function.
+# Source: https://stackoverflow.com/a/58127701/117259
+def rotate_image(image, angle):
+
+	############################################################################
+	# Grab the dimensions of the image and then determine the center
+	(image_h, image_w) = image.shape[:2]
+	(cX, cY) = (image_w / 2, image_h / 2)
+
+	############################################################################
+	# Grab the rotation matrix (applying the negative of the
+	# angle to rotate clockwise), then grab the sine and cosine
+	# (i.e., the rotation components of the matrix)
+	M = cv2.getRotationMatrix2D((cX, cY), -angle, 1.0)
+	cos = np.abs(M[0, 0])
+	sin = np.abs(M[0, 1])
+
+	############################################################################
+	# Compute the new bounding dimensions of the image
+	nW = int((image_h * sin) + (image_w * cos))
+	nH = int((image_h * cos) + (image_w * sin))
+
+	############################################################################
+	# Adjust the rotation matrix to take into account translation
+	M[0, 2] += (nW / 2) - cX
+	M[1, 2] += (nH / 2) - cY
+
+	############################################################################
+	# Perform the actual rotation and return the image
+	return cv2.warpAffine(image, M, (nW, nH))
 
 ################################################################################
 # Usage Check
@@ -248,8 +279,21 @@ if not os.path.isfile(sys.argv[-1]):
 
 ################################################################################
 # And here’s where we invoke it.
-results = str(tryDetect(True))
-print (results))
+rotation = int(try_detect(True))
 
-# image_test = filename + '_' + str(rotation) + extension
-# cv2.imwrite(image_test, image)
+################################################################################
+# Return the output.
+print (rotation)
+
+############################################################################
+# TODO: Some simple debugging. Don’t use Python to do image writing.
+# Instead use the output with a batch processor like ImageMagick.
+debug = True
+if debug:
+	filename = pathlib.Path(sys.argv[-1]).stem
+	extension = pathlib.Path(sys.argv[-1]).suffix
+	image_path = os.path.abspath(sys.argv[-1])
+	image = cv2.imread(image_path)
+	image = rotate_image(image, rotation)
+	image_test = filename + '_' + str(rotation) + extension
+	cv2.imwrite(image_test, image)
