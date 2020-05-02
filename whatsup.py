@@ -123,33 +123,42 @@ def detectBrightest(image, filename, extension):
 	############################################################################
 	# Get the slices for the top, right, bottom and left regions for analysis.
 	sample_top = image[0:round(image_h/3), 0:image_w]
-	sample_right = image[0:image_h, round(2*(image_w/3)):image_w]
-	sample_bottom = image[round(2*(image_h/3)):image_h, 0:image_w]
 	sample_left = image[0:image_h, 0:round(image_w/3)]
+	sample_bottom = image[round(2*(image_h/3)):image_h, 0:image_w]
+	sample_right = image[0:image_h, round(2*(image_w/3)):image_w]
 
 	####################################################################
 	# Resize the sample images to 10x10 to average things out
 	resize = (10, 10)
 	sample_top = cv2.resize(sample_top, resize, interpolation = cv2.INTER_CUBIC)
-	sample_right = cv2.resize(sample_right, resize, interpolation = cv2.INTER_CUBIC)
-	sample_bottom = cv2.resize(sample_bottom, resize, interpolation = cv2.INTER_CUBIC)
 	sample_left = cv2.resize(sample_left, resize, interpolation = cv2.INTER_CUBIC)
+	sample_bottom = cv2.resize(sample_bottom, resize, interpolation = cv2.INTER_CUBIC)
+	sample_right = cv2.resize(sample_right, resize, interpolation = cv2.INTER_CUBIC)
 
 	####################################################################
 	# Blur the images to even further average things out.
 	sample_top = cv2.GaussianBlur(sample_top, (5,5), cv2.BORDER_DEFAULT)
-	sample_right = cv2.GaussianBlur(sample_right, (5,5), cv2.BORDER_DEFAULT)
-	sample_bottom = cv2.GaussianBlur(sample_bottom, (5,5), cv2.BORDER_DEFAULT)
 	sample_left = cv2.GaussianBlur(sample_left, (5,5), cv2.BORDER_DEFAULT)
+	sample_bottom = cv2.GaussianBlur(sample_bottom, (5,5), cv2.BORDER_DEFAULT)
+	sample_right = cv2.GaussianBlur(sample_right, (5,5), cv2.BORDER_DEFAULT)
 
 	####################################################################
 	# Build a mapping of those samples.
 	sides = {}
 	sides['top'] = cv2.mean(sample_top)[0]
-	sides['right'] = cv2.mean(sample_right)[0]
-	sides['bottom'] = cv2.mean(sample_bottom)[0]
 	sides['left'] = cv2.mean(sample_left)[0]
-	print (sides)
+	sides['bottom'] = cv2.mean(sample_bottom)[0]
+	sides['right'] = cv2.mean(sample_right)[0]
+
+	####################################################################
+	# Set the rotation vaklues.
+	rotation = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
+
+	####################################################################
+	# Get the max vaklue from the sides.
+	max_side = max(sides, key = sides.get)
+	# max_side = max(sides.items(), key = lambda k : k[1])
+	print (max_side)
 
 	# cv2.imwrite(filename + '_top' + extension, sample_top)
 	# cv2.imwrite(filename + '_right' + extension, sample_right)
@@ -168,25 +177,6 @@ def detectBrightest(image, filename, extension):
 	# 	sidelum = sidelum/(side.rows*side.cols)
 	# 	if sidelum > greatest:
 	# 		winning = name
-	#
-	# if (sys.argv[1] == '--debug'):
-	# 	if winning == 'top':
-	# 		first = (0, 0)
-	# 		second = (width, height/3)
-	# 	elif winning == 'left':
-	# 		first = (0, 0)
-	# 		second = (width/3, height)
-	# 	elif winning == 'bottom':
-	# 		first = (0, (height/3*2))
-	# 		second = (width, height)
-	# 	elif winning == 'right':
-	# 		first = ((width/3*2), 0)
-	# 		second = (width, height)
-	#
-	# cv2.Rectangle(small_img, first, second, cv2.RGB(125, 125, 125), 3, 8, 0)
-	# cv2.NamedWindow("Faces")
-	# cv2.ShowImage("Faces", small_img)
-	# cv2.WaitKey(3000)
 	#
 	# returns = {'top':0, 'left':90, 'bottom':180, 'right':270}
 	#
