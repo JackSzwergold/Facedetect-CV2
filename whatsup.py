@@ -90,15 +90,24 @@ def detectFaces(image, cc):
 # The 'detectBrightest' function.
 def detectBrightest(image):
 
-	image_scale = 4 # This scale factor doesn't matter much. It just gives us less pixels to iterate over later
+	############################################################################
+	# Initialize the counter.
+	counter = 0
 
-	newsize = (round(image.width/image_scale), round(image.height/image_scale)) # find new size
+	####################################################################
+	# Get the dimensions of the image.
+	img_shape = np.shape(image)
+	image_w = img_shape[0]
+	image_h = img_shape[1]
 
-	image_resized = cv2.CreateImage(newsize, 8, 1)
+	####################################################################
+	# Calculate the new size for the images.
+	resize_w = round(image_w / counter)
+	resize_h = round(image_h / counter)
+
+
 	image_resized = cv2.resize(image, (resize_h, resize_w), interpolation = cv2.INTER_CUBIC)
 
-
-	cv2.Resize(image, image_resized, cv2.CV_INTER_LINEAR)
 
 	############################################################################
 	# Take the top 1/3, right 1/3, etc. to compare for brightness
@@ -171,6 +180,8 @@ def tryDetect():
 		# Define the cascade classifier.
 		cc = cv2.CascadeClassifier(os.path.join(data_directory, this_cascade))
 
+		########################################################################
+		# Roll through the sizes.
 		while counter > 0:
 
 			####################################################################
