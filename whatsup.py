@@ -87,66 +87,6 @@ def detectFaces(image, cc):
 	return False
 
 ################################################################################
-# The 'detectBrightest' function.
-def detectBrightest(image):
-
-	############################################################################
-	# Initialize the counter.
-	counter = 4
-
-	####################################################################
-	# Get the dimensions of the image.
-	img_shape = np.shape(image)
-	image_w = img_shape[0]
-	image_h = img_shape[1]
-
-	####################################################################
-	# Calculate the new size for the images.
-	resize_w = round(image_w / counter)
-	resize_h = round(image_h / counter)
-
-	####################################################################
-	# Resize the image.
-	image_resized = cv2.resize(image, (resize_h, resize_w), interpolation = cv2.INTER_CUBIC)
-
-	############################################################################
-	# Take the top 1/3, right 1/3, etc. to compare for brightness
-	top = [round(resize_h / 3), resize_w]
-	right = [resize_h, round(resize_w / (3 * 2))]
-	left = [resize_h, round(resize_w / 3)]
-	bottom = [round(resize_h / (3 * 2)), resize_h]
-
-	sides = { 'top' : top, 'left' : left, 'bottom' : bottom, 'right' : right}
-
-
-
-	############################################################################
-	# Find the brightest side
-	greatest = 0
-	winning = 'top'
-	for name in sides:
-		sidelum = 0
-		side = sides[name]
-		for x in range(side.rows - 1):
-			for y in range(side.cols - 1):
-				sidelum = sidelum + side[x, y]
-		sidelum = sidelum / (side.rows * side.cols)
-		if sidelum > greatest:
-			winning = name
-
-	print(winning)
-	exit()
-
-	# cv2.Rectangle(image_resized, first, second, cv2.RGB(125, 125, 125), 3, 8, 0)
-	# cv2.NamedWindow("Faces")
-	# cv2.ShowImage("Faces", image_resized)
-	# cv2.WaitKey(3000)
-
-	returns = { 'top' : 0, 'left' : 90, 'bottom' : 180, 'right' : 270 }
-
-	return returns[winning]
-
-################################################################################
 # The 'tryDetect' function.
 def tryDetect():
 
@@ -213,14 +153,14 @@ def tryDetect():
 
 			####################################################################
 			# If we have results return the results.
-			if False and results is not False:
+			if results is not False:
 				return results
 
 			counter = counter - 1
 
 	############################################################################
-	# no faces found, use the brightest side for orientation instead
-	return detectBrightest(image)
+	# If no faces are found, return 0.
+	return 0
 
 ################################################################################
 # Usage Check
