@@ -174,9 +174,9 @@ def tryDetect(biggest=False):
 
 			####################################################################
 			# Send the image to the 'dectectFaces' method.
-			image_test = image_resized[0:resize_h, 0:resize_w]
-			image_test_filename = filename + '_zzzz' + extension
-			cv2.imwrite(image_test_filename, image_test)
+			image_top = image_resized[0:resize_h, 0:resize_w]
+			image_top_filename = filename + '_top' + extension
+			cv2.imwrite(image_top_filename, image_top)
 
 			####################################################################
 			# Send the image to the 'dectectFaces' method.
