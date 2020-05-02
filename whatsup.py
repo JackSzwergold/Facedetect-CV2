@@ -158,11 +158,14 @@ def tryDetect():
 	for this_cascade in cascades_to_use:
 
 		########################################################################
+		# Initialize the counter.
+		counter = 4
+
+		########################################################################
 		# Define the cascade classifier.
 		cc = cv2.CascadeClassifier(os.path.join(data_directory, this_cascade))
 
-		image_scale = 4
-		while image_scale > 0:
+		while counter > 0:
 
 			####################################################################
 			# Get the dimensions of the image.
@@ -172,8 +175,8 @@ def tryDetect():
 
 			####################################################################
 			# Calculate the new size for the images.
-			resize_w = round(image_w / image_scale)
-			resize_h = round(image_h / image_scale)
+			resize_w = round(image_w / counter)
+			resize_h = round(image_h / counter)
 
 			####################################################################
 			# Resize the image.
@@ -191,7 +194,7 @@ def tryDetect():
 			if results is not False:
 				return results
 
-			image_scale = image_scale - 1
+			counter = counter - 1
 
 	############################################################################
 	# no faces found, use the brightest side for orientation instead
