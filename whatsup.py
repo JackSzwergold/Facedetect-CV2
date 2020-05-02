@@ -49,7 +49,7 @@ import pathlib
 # Enable debug mode.
 debug = True
 
-############################################################################
+################################################################################
 # Set the cascade data directory and related stuff.
 DATA_DIRECTORY = '/usr/local/lib/python3.7/site-packages/cv2/data/'
 # CASCADES_TO_USE = ('haarcascade_frontalface_alt.xml', 'haarcascade_profileface.xml', 'haarcascade_fullbody.xml')
@@ -119,7 +119,7 @@ def detect_brightest_side(image, filename, extension):
 	# Set the tuple for kernel size.
 	blur_kernel = (5, 5)
 
-	####################################################################
+	############################################################################
 	# Set the mapping for rotation values.
 	rotation = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
 
@@ -127,7 +127,7 @@ def detect_brightest_side(image, filename, extension):
 	# Get the dimensions of the image.
 	(image_h, image_w) = image.shape[:2]
 
-	####################################################################
+	############################################################################
 	# Get sample chunks.
 	chunks = {}
 	chunks['top'] = image[0:round(image_h / ratio), 0:image_w]
@@ -141,11 +141,11 @@ def detect_brightest_side(image, filename, extension):
 	for position in chunks:
 		samples[position] = cv2.mean(cv2.GaussianBlur(cv2.resize(chunks[position], resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT))[0]
 
-	####################################################################
+	############################################################################
 	# Get the max value from the sides.
 	max_side = max(samples, key = sides.get)
 
-	####################################################################
+	############################################################################
 	# Return the final return value.
 	return rotation[max_side]
 
@@ -276,7 +276,7 @@ rotation = int(try_detect(True))
 # Now, return the output.
 print (rotation)
 
-############################################################################
+################################################################################
 # TODO: Some simple debugging. Don’t use Python to do image writing.
 # Instead use the output with a batch processor like ImageMagick.
 if debug:
