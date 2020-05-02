@@ -173,11 +173,15 @@ def tryDetect(biggest=False):
 			image_resized = cv2.resize(image, (resize_w, resize_h), interpolation = cv2.INTER_CUBIC)
 
 			####################################################################
-			# Send the image to the 'dectectFaces' method.
+			# TODO: Getting the slices for the top, right, bottom and left regions for analysis.
 			image_top = image_resized[0:round(resize_h/4), 0:resize_w]
-			image_bottom = image_resized[0:round(resize_h/4), 0:resize_w]
+			image_right = image_resized[0:resize_h, round(3*(resize_w/4)):resize_w]
+			image_bottom = image_resized[round(3*(resize_h/4)):resize_h, 0:resize_w]
+			image_left = image_resized[0:resize_h, 0:round(resize_w/4)]
 			cv2.imwrite(filename + '_top' + extension, image_top)
+			cv2.imwrite(filename + '_right' + extension, image_right)
 			cv2.imwrite(filename + '_bottom' + extension, image_bottom)
+			cv2.imwrite(filename + '_left' + extension, image_left)
 
 			####################################################################
 			# Send the image to the 'dectectFaces' method.
