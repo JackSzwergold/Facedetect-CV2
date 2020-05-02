@@ -109,22 +109,17 @@ def detectBrightest(image):
 	# Resize the image.
 	image_resized = cv2.resize(image, (resize_h, resize_w), interpolation = cv2.INTER_CUBIC)
 
-
-
-
 	############################################################################
 	# Take the top 1/3, right 1/3, etc. to compare for brightness
-	width = image_resized.width
-	height = image_resized.height
-	top = image_resized[0:height/3, 0:width]
-	right = image_resized[0:height, (width/3*2):width]
-	left = image_resized[0:height, 0:width/3]
-	bottom = image_resized[(height/3*2):height, 0:height]
+	top = [round(resize_h / 3), resize_w]
+	right = [resize_h, round(resize_w / 3 * 2)]
+	left = [resize_h, round(resize_w / 3)]
+	bottom = [round(resize_h/3*2), resize_h]
 
-	sides = {'top':top, 'left':left, 'bottom':bottom, 'right':right}
+	sides = { 'top' : top, 'left' : left, 'bottom' : bottom, 'right' : right}
 
-
-
+	print(sides)
+	exit()
 
 	############################################################################
 	# Find the brightest side
