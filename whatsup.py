@@ -107,15 +107,20 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 def detect_brightest_side(image, filename, extension):
 
 	############################################################################
+	# Set the ratio used to slice up the image.
+	ratio = 3
+	boundary = (ratio - 1)
+
+	############################################################################
 	# Get the dimensions of the image.
 	(image_h, image_w) = image.shape[:2]
 
 	############################################################################
 	# Get the slices for the top, right, bottom and left regions for analysis.
-	sample_top = image[0:round(image_h/3), 0:image_w]
-	sample_left = image[0:image_h, 0:round(image_w/3)]
-	sample_bottom = image[round(2*(image_h/3)):image_h, 0:image_w]
-	sample_right = image[0:image_h, round(2*(image_w/3)):image_w]
+	sample_top = image[0:round(image_h / ratio), 0:image_w]
+	sample_left = image[0:image_h, 0:round(image_w / ratio)]
+	sample_bottom = image[round(boundary * (image_h / ratio)):image_h, 0:image_w]
+	sample_right = image[0:image_h, round(boundary * (image_w / ratio)):image_w]
 
 	####################################################################
 	# Resize the sample images to 10x10 to average things out
@@ -216,7 +221,7 @@ def try_detect(biggest=False):
 
 			####################################################################
 			# If we have results return the results.
-			if results is not False:
+			if False and results is not False:
 				return results
 
 			counter = counter - 1
