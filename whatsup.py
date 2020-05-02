@@ -151,38 +151,14 @@ def detectBrightest(image, filename, extension):
 	sides['right'] = cv2.mean(sample_right)[0]
 
 	####################################################################
-	# Set the rotation vaklues.
-	rotation = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
+	# Get the max value from the sides.
+	max_side = max(sides, key = sides.get)
 
 	####################################################################
-	# Get the max vaklue from the sides.
-	max_side = max(sides, key = sides.get)
-	# max_side = max(sides.items(), key = lambda k : k[1])
-	print (max_side)
+	# Set the mapping for rotation values.
+	rotation = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
 
-	# cv2.imwrite(filename + '_top' + extension, sample_top)
-	# cv2.imwrite(filename + '_right' + extension, sample_right)
-	# cv2.imwrite(filename + '_bottom' + extension, sample_bottom)
-	# cv2.imwrite(filename + '_left' + extension, sample_left)
-
-	# # Find the brightest side
-	# greatest = 0
-	# winning = 'top'
-	# for name in sides:
-	# 	sidelum = 0
-	# 	side = sides[name]
-	# 	for x in range(side.rows - 1):
-	# 		for y in range(side.cols - 1):
-	# 			sidelum = sidelum + side[x, y]
-	# 	sidelum = sidelum/(side.rows*side.cols)
-	# 	if sidelum > greatest:
-	# 		winning = name
-	#
-	# returns = {'top':0, 'left':90, 'bottom':180, 'right':270}
-	#
-	# # return the winner
-
-	return returns[max_side]
+	return rotation[max_side]
 
 ################################################################################
 # The 'tryDetect' function.
