@@ -161,9 +161,12 @@ def tryDetect(biggest=False):
 
 			####################################################################
 			# Get the dimensions of the image.
-			img_shape = np.shape(image)
-			image_w = img_shape[0]
-			image_h = img_shape[1]
+			image_h, image_w = image.shape[:2]
+			# image_w = img_shape[0]
+			# image_h = img_shape[1]
+
+            print (image_w)
+            print (image_h)
 
 			####################################################################
 			# Calculate the new size for the images.
