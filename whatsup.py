@@ -142,20 +142,19 @@ def detectBrightest(image, filename, extension):
 	sample_bottom = cv2.GaussianBlur(sample_bottom, (5,5), cv2.BORDER_DEFAULT)
 	sample_left = cv2.GaussianBlur(sample_left, (5,5), cv2.BORDER_DEFAULT)
 
-	print ('**********************************************************')
-	print ('top' + str(cv2.mean(sample_top)[0]))
-	print ('right' + str(cv2.mean(sample_right)[0]))
-	print ('bottom' + str(cv2.mean(sample_bottom)[0]))
-	print ('left' + str(cv2.mean(sample_left)[0]))
+	####################################################################
+	# Build a mapping of those samples.
+	sides = {}
+	sides['top'] = cv2.mean(sample_top)[0]
+	sides['right'] = cv2.mean(sample_right)[0]
+	sides['bottom'] = cv2.mean(sample_bottom)[0]
+	sides['left'] = cv2.mean(sample_left)[0]
+	print (sides)
 
 	# cv2.imwrite(filename + '_top' + extension, sample_top)
 	# cv2.imwrite(filename + '_right' + extension, sample_right)
 	# cv2.imwrite(filename + '_bottom' + extension, sample_bottom)
 	# cv2.imwrite(filename + '_left' + extension, sample_left)
-
-	####################################################################
-	# Define the sides.
-	sides = {'top':sample_top, 'right':sample_right, 'bottom':sample_bottom, 'left':sample_left}
 
 	# # Find the brightest side
 	# greatest = 0
