@@ -115,58 +115,83 @@ def detectFaces(image, cc, filename, extension, biggest=False):
 
 # Detect which side of the photo is brightest. Hopefully it will be the sky.
 def detectBrightest(image):
-	image_scale = 4 # This scale factor doesn't matter much. It just gives us less pixels to iterate over later
-	newsize = (cv2.Round(image.width/image_scale), cv2.Round(image.height/image_scale)) # find new size
-	small_img = cv2.CreateImage(newsize, 8, 1)
-	cv2.Resize(image, small_img, cv2.CV_INTER_LINEAR)
 
-	# Take the top 1/3, right 1/3, etc. to compare for brightness
-	width = small_img.width
-	height = small_img.height
-	top = small_img[0:height/3, 0:width]
-	right = small_img[0:height, (width/3*2):width]
-	left = small_img[0:height, 0:width/3]
-	bottom = small_img[(height/3*2):height, 0:height]
+	############################################################################
+	# Get the dimensions of the image.
+	image_h, image_w = image.shape[:2]
 
-	sides = {'top':top, 'left':left, 'bottom':bottom, 'right':right}
+	############################################################################
+	# Get the slices for the top, right, bottom and left regions for analysis.
+	sample_top = image[0:round(image_h/3), 0:image_w]
+	sample_right = image[0:image_h, round(2*(image_w/3)):image_w]
+	sample_bottom = image[round(2*(image_h/3)):resize_h, 0:image_w]
+	sample_left = image[0:image_h, 0:round(image_w/3)]
 
-	# Find the brightest side
-	greatest = 0
-	winning = 'top'
-	for name in sides:
-		sidelum = 0
-		side = sides[name]
-		for x in range(side.rows - 1):
-			for y in range(side.cols - 1):
-				sidelum = sidelum + side[x, y]
-		sidelum = sidelum/(side.rows*side.cols)
-		if sidelum > greatest:
-			winning = name
+	####################################################################
+	# Resize the sample images to 10x10 to average things out
+	resize = (10, 10)
+	sample_top = cv2.resize(sample_top, resize, interpolation = cv2.INTER_CUBIC)
+	sample_right = cv2.resize(sample_right, resize, interpolation = cv2.INTER_CUBIC)
+	sample_bottom = cv2.resize(sample_bottom, resize, interpolation = cv2.INTER_CUBIC)
+	sample_left = cv2.resize(sample_left, resize, interpolation = cv2.INTER_CUBIC)
 
-	if (sys.argv[1] == '--debug'):
-		if winning == 'top':
-			first = (0, 0)
-			second = (width, height/3)
-		elif winning == 'left':
-			first = (0, 0)
-			second = (width/3, height)
-		elif winning == 'bottom':
-			first = (0, (height/3*2))
-			second = (width, height)
-		elif winning == 'right':
-			first = ((width/3*2), 0)
-			second = (width, height)
+	####################################################################
+	# Blur the images to even further average things out.
+	sample_top = cv2.GaussianBlur(sample_top, (5,5), cv2.BORDER_DEFAULT)
+	sample_right = cv2.GaussianBlur(sample_right, (5,5), cv2.BORDER_DEFAULT)
+	sample_bottom = cv2.GaussianBlur(sample_bottom, (5,5), cv2.BORDER_DEFAULT)
+	sample_left = cv2.GaussianBlur(sample_left, (5,5), cv2.BORDER_DEFAULT)
 
-	cv2.Rectangle(small_img, first, second, cv2.RGB(125, 125, 125), 3, 8, 0)
-	cv2.NamedWindow("Faces")
-	cv2.ShowImage("Faces", small_img)
-	cv2.WaitKey(3000)
+	print ('**********************************************************')
+	print (filename + '_top' + str(cv2.mean(sample_top)))
+	print (filename + '_right' + str(cv2.mean(sample_right)))
+	print (filename + '_bottom' + str(cv2.mean(sample_bottom)))
+	print (filename + '_left' + str(cv2.mean(sample_left)))
 
-	returns = {'top':0, 'left':90, 'bottom':180, 'right':270}
+	# cv2.imwrite(filename + '_top' + extension, sample_top)
+	# cv2.imwrite(filename + '_right' + extension, sample_right)
+	# cv2.imwrite(filename + '_bottom' + extension, sample_bottom)
+	# cv2.imwrite(filename + '_left' + extension, sample_left)
 
-	# return the winner
-	if sys.argv[1] == '--debug':
-		print ("The " + winning + " side was the brightest!")
+	####################################################################
+	# Define the sides.
+	sides = {'top':sample_top, 'right':sample_right, 'bottom':sample_bottom, 'left':sample_left}
+
+	# # Find the brightest side
+	# greatest = 0
+	# winning = 'top'
+	# for name in sides:
+	# 	sidelum = 0
+	# 	side = sides[name]
+	# 	for x in range(side.rows - 1):
+	# 		for y in range(side.cols - 1):
+	# 			sidelum = sidelum + side[x, y]
+	# 	sidelum = sidelum/(side.rows*side.cols)
+	# 	if sidelum > greatest:
+	# 		winning = name
+	#
+	# if (sys.argv[1] == '--debug'):
+	# 	if winning == 'top':
+	# 		first = (0, 0)
+	# 		second = (width, height/3)
+	# 	elif winning == 'left':
+	# 		first = (0, 0)
+	# 		second = (width/3, height)
+	# 	elif winning == 'bottom':
+	# 		first = (0, (height/3*2))
+	# 		second = (width, height)
+	# 	elif winning == 'right':
+	# 		first = ((width/3*2), 0)
+	# 		second = (width, height)
+	#
+	# cv2.Rectangle(small_img, first, second, cv2.RGB(125, 125, 125), 3, 8, 0)
+	# cv2.NamedWindow("Faces")
+	# cv2.ShowImage("Faces", small_img)
+	# cv2.WaitKey(3000)
+	#
+	# returns = {'top':0, 'left':90, 'bottom':180, 'right':270}
+	#
+	# # return the winner
 	return returns[winning]
 
 ################################################################################
