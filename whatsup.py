@@ -92,7 +92,7 @@ def detectBrightest(image):
 
 	############################################################################
 	# Initialize the counter.
-	counter = 0
+	counter = 4
 
 	####################################################################
 	# Get the dimensions of the image.
@@ -105,8 +105,11 @@ def detectBrightest(image):
 	resize_w = round(image_w / counter)
 	resize_h = round(image_h / counter)
 
-
+	####################################################################
+	# Resize the image.
 	image_resized = cv2.resize(image, (resize_h, resize_w), interpolation = cv2.INTER_CUBIC)
+
+
 
 
 	############################################################################
@@ -119,6 +122,9 @@ def detectBrightest(image):
 	bottom = image_resized[(height/3*2):height, 0:height]
 
 	sides = {'top':top, 'left':left, 'bottom':bottom, 'right':right}
+
+
+
 
 	############################################################################
 	# Find the brightest side
