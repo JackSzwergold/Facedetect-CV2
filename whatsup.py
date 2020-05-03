@@ -87,6 +87,17 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 		faces_detected = cc.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
 
 		########################################################################
+		# TODO: Debugging stuff.
+		for x, y, w, h in faces_detected:
+			start_point = (x, y)
+			end_point = (x + w, y + h)
+			color = (255, 0, 0)
+			thickness = 3
+			image_rectangle = cv2.rectangle(image, start_point, end_point, color, thickness)
+			image_test = filename + '_boxtest' + extension
+			cv2.imwrite(image_test, image_rectangle)
+
+		########################################################################
 		# If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
 		if (len(faces_detected) > 0):
 			rotation = counter * 90
