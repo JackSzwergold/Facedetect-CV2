@@ -37,7 +37,6 @@
 
 ################################################################################
 # Import various modules and functions.
-from __future__ import print_function, division, generators, unicode_literals
 import sys
 import os
 import cv2
@@ -61,6 +60,7 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 	############################################################################
 	# Initialize the counter.
 	counter = 0
+	rotation_maximum = 4
 
 	############################################################################
 	# Set the min and max image size.
@@ -79,7 +79,7 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 
 	############################################################################
 	# Roll through the rotations to use.
-	while counter < 4:
+	while counter < rotation_maximum:
 
 		########################################################################
 		# Attempt to detect some faces.
@@ -198,7 +198,8 @@ def try_detect(biggest=False):
 
 		########################################################################
 		# Initialize the counter.
-		counter = 4
+		counter = 2
+		count_minimum = 1
 
 		########################################################################
 		# Define the cascade classifier.
@@ -206,7 +207,7 @@ def try_detect(biggest=False):
 
 		########################################################################
 		# Roll through the sizes.
-		while counter > 0:
+		while counter >= count_minimum:
 
 			####################################################################
 			# Get the dimensions of the image.
