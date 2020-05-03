@@ -70,6 +70,16 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 	max_length = int(side / 2)
 
 	############################################################################
+	# Adjust contrast and brightness: Contrast (1.0-3.0), Brightness (0-100)
+	contrast = 1.25
+	brightness = 0
+	image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
+
+	############################################################################
+	# Convert the image to grayscale.
+	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+	############################################################################
 	# Set the CV2 flags.
 	flags = cv2.CASCADE_DO_CANNY_PRUNING
 
@@ -88,15 +98,16 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 
 		########################################################################
 		# TODO: Debugging stuff.
-		for x, y, w, h in faces_detected:
-			start_point = (x, y)
-			end_point = (x + w, y + h)
-			color = (0, 255, 0)
-			thickness = 5
-			image_face_rectangle = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-			image_face_rectangle = cv2.rectangle(image_face_rectangle, start_point, end_point, color, thickness)
-			image_face_test = filename + '_boxtest' + extension
-			cv2.imwrite(image_face_test, image_face_rectangle)
+		if debug:
+			for x, y, w, h in faces_detected:
+				start_point = (x, y)
+				end_point = (x + w, y + h)
+				color = (0, 255, 0)
+				thickness = 5
+				image_face_rectangle = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+				image_face_rectangle = cv2.rectangle(image_face_rectangle, start_point, end_point, color, thickness)
+				image_face_test = filename + '_boxtest' + extension
+				cv2.imwrite(image_face_test, image_face_rectangle)
 
 		########################################################################
 		# If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
@@ -133,7 +144,7 @@ def detect_brightest_side(image, filename, extension):
 
 	############################################################################
 	# Set the mapping for rotation values.
-	rotation = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
+	rotation_map = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
 
 	############################################################################
 	# Get the dimensions of the image.
@@ -159,7 +170,7 @@ def detect_brightest_side(image, filename, extension):
 
 	############################################################################
 	# Return the final return value.
-	return rotation[max_side]
+	return rotation_map[max_side]
 
 ################################################################################
 # The 'try_detect' function.
@@ -181,16 +192,6 @@ def try_detect(biggest=False):
 	############################################################################
 	# Load the image into the script.
 	image = cv2.imread(image_path)
-
-	############################################################################
-	# Adjust contrast and brightness: Contrast (1.0-3.0), Brightness (0-100)
-	contrast = 1.25
-	brightness = 0
-	image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
-
-	############################################################################
-	# Convert the image to grayscale.
-	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 	############################################################################
 	# Roll through the cascades.
