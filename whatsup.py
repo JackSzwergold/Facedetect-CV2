@@ -47,12 +47,11 @@ import pathlib
 
 ################################################################################
 # Enable debug mode.
-debug = True
+debug = False
 
 ################################################################################
 # Set the cascade data directory and related stuff.
 DATA_DIRECTORY = '/usr/local/lib/python3.7/site-packages/cv2/data/'
-# CASCADES_TO_USE = ('haarcascade_frontalface_alt.xml', 'haarcascade_profileface.xml', 'haarcascade_fullbody.xml')
 CASCADES_TO_USE = ('haarcascade_profileface.xml', 'haarcascade_fullbody.xml', 'haarcascade_frontalface_alt.xml', 'haarcascade_frontalface_default.xml')
 
 ################################################################################
@@ -94,10 +93,10 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 				end_point = (x + w, y + h)
 				color = (0, 255, 0)
 				thickness = 5
-				image_face_rectangle = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-				image_face_rectangle = cv2.rectangle(image_face_rectangle, start_point, end_point, color, thickness)
-				image_face_test = filename + '_facebox' + extension
-				cv2.imwrite(image_face_test, image_face_rectangle)
+				image_facebox = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+				image_facebox = cv2.rectangle(image_facebox, start_point, end_point, color, thickness)
+				image_facebox_filename = filename + '_facebox' + extension
+				cv2.imwrite(image_facebox_filename, image_facebox)
 
 		########################################################################
 		# If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
