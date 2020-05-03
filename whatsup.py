@@ -96,7 +96,7 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 				thickness = 5
 				image_face_rectangle = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 				image_face_rectangle = cv2.rectangle(image_face_rectangle, start_point, end_point, color, thickness)
-				image_face_test = filename + '_boxtest' + extension
+				image_face_test = filename + '_facebox' + extension
 				cv2.imwrite(image_face_test, image_face_rectangle)
 
 		########################################################################
