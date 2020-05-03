@@ -37,7 +37,6 @@
 
 ################################################################################
 # Import various modules and functions.
-from __future__ import print_function, division, generators, unicode_literals
 import sys
 import os
 import cv2
@@ -52,7 +51,6 @@ debug = False
 ################################################################################
 # Set the cascade data directory and related stuff.
 DATA_DIRECTORY = '/usr/local/lib/python3.7/site-packages/cv2/data/'
-# CASCADES_TO_USE = ('haarcascade_frontalface_alt.xml', 'haarcascade_profileface.xml', 'haarcascade_fullbody.xml')
 CASCADES_TO_USE = ('haarcascade_profileface.xml', 'haarcascade_fullbody.xml', 'haarcascade_frontalface_alt.xml', 'haarcascade_frontalface_default.xml')
 
 ################################################################################
@@ -62,6 +60,7 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 	############################################################################
 	# Initialize the counter.
 	counter = 0
+	rotation_maximum = 4
 
 	############################################################################
 	# Set the min and max image size.
@@ -80,11 +79,24 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 
 	############################################################################
 	# Roll through the rotations to use.
-	while counter < 4:
+	while counter < rotation_maximum:
 
 		########################################################################
 		# Attempt to detect some faces.
 		faces_detected = cc.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+
+		########################################################################
+		# TODO: Debugging stuff.
+		if debug:
+			for x, y, w, h in faces_detected:
+				start_point = (x, y)
+				end_point = (x + w, y + h)
+				color = (0, 255, 0)
+				thickness = 5
+				image_facebox = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+				image_facebox = cv2.rectangle(image_facebox, start_point, end_point, color, thickness)
+				image_facebox_filename = filename + '_facebox' + extension
+				cv2.imwrite(image_facebox_filename, image_facebox)
 
 		########################################################################
 		# If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
@@ -121,7 +133,7 @@ def detect_brightest_side(image, filename, extension):
 
 	############################################################################
 	# Set the mapping for rotation values.
-	rotation = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
+	rotation_map = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
 
 	############################################################################
 	# Get the dimensions of the image.
@@ -147,7 +159,7 @@ def detect_brightest_side(image, filename, extension):
 
 	############################################################################
 	# Return the final return value.
-	return rotation[max_side]
+	return rotation_map[max_side]
 
 ################################################################################
 # The 'try_detect' function.
@@ -186,7 +198,8 @@ def try_detect(biggest=False):
 
 		########################################################################
 		# Initialize the counter.
-		counter = 4
+		counter = 2
+		count_minimum = 1
 
 		########################################################################
 		# Define the cascade classifier.
@@ -194,7 +207,7 @@ def try_detect(biggest=False):
 
 		########################################################################
 		# Roll through the sizes.
-		while counter > 0:
+		while counter >= count_minimum:
 
 			####################################################################
 			# Get the dimensions of the image.
