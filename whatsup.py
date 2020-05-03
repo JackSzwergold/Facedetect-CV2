@@ -91,11 +91,12 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 		for x, y, w, h in faces_detected:
 			start_point = (x, y)
 			end_point = (x + w, y + h)
-			color = (255, 0, 0)
-			thickness = 3
-			image_rectangle = cv2.rectangle(image, start_point, end_point, color, thickness)
-			image_test = filename + '_boxtest' + extension
-			cv2.imwrite(image_test, image_rectangle)
+			color = (0, 255, 0)
+			thickness = 5
+			image_face_rectangle = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+			image_face_rectangle = cv2.rectangle(image_face_rectangle, start_point, end_point, color, thickness)
+			image_face_test = filename + '_boxtest' + extension
+			cv2.imwrite(image_face_test, image_face_rectangle)
 
 		########################################################################
 		# If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
