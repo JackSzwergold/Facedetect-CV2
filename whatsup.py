@@ -47,7 +47,7 @@ import pathlib
 
 ################################################################################
 # Enable debug mode.
-debug = False
+debug = True
 
 ################################################################################
 # Set the cascade data directory and related stuff.
@@ -68,16 +68,6 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 	side = math.sqrt(image.size)
 	min_length = int(side / 20)
 	max_length = int(side / 2)
-
-	############################################################################
-	# Adjust contrast and brightness: Contrast (1.0-3.0), Brightness (0-100)
-	contrast = 1.25
-	brightness = 0
-	image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
-
-	############################################################################
-	# Convert the image to grayscale.
-	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 	############################################################################
 	# Set the CV2 flags.
@@ -192,6 +182,16 @@ def try_detect(biggest=False):
 	############################################################################
 	# Load the image into the script.
 	image = cv2.imread(image_path)
+
+	############################################################################
+	# Adjust contrast and brightness: Contrast (1.0-3.0), Brightness (0-100)
+	contrast = 1.25
+	brightness = 0
+	image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
+
+	############################################################################
+	# Convert the image to grayscale.
+	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 	############################################################################
 	# Roll through the cascades.
