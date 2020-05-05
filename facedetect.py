@@ -241,26 +241,26 @@ def pairwise_similarity(im, features, template, **mssim_args):
 ################################################################################
 # The '__main__' function.
 def __main__():
-    ap = argparse.ArgumentParser(description='A simple face detector for batch processing')
-    ap.add_argument('--biggest', action="store_true",
+    argument_parser = argparse.ArgumentParser(description='A simple face detector for batch processing')
+    argument_parser.add_argument('--biggest', action="store_true",
                     help='Extract only the biggest face')
-    ap.add_argument('--best', action="store_true",
+    argument_parser.add_argument('--best', action="store_true",
                     help='Extract only the best matching face')
-    ap.add_argument('-c', '--center', action="store_true",
+    argument_parser.add_argument('-c', '--center', action="store_true",
                     help='Print only the center coordinates')
-    ap.add_argument('--data-dir', metavar='DIRECTORY', default=DATA_DIR,
+    argument_parser.add_argument('--data-dir', metavar='DIRECTORY', default=DATA_DIR,
                     help='OpenCV data files directory')
-    ap.add_argument('-q', '--query', action="store_true",
+    argument_parser.add_argument('-q', '--query', action="store_true",
                     help='Query only (exit 0: face detected, 2: no detection)')
-    ap.add_argument('-s', '--search', metavar='FILE',
+    argument_parser.add_argument('-s', '--search', metavar='FILE',
                     help='Search for faces similar to the one supplied in FILE')
-    ap.add_argument('--search-threshold', metavar='PERCENT', type=int, default=30,
+    argument_parser.add_argument('--search-threshold', metavar='PERCENT', type=int, default=30,
                     help='Face similarity threshold (default: 30%%)')
-    ap.add_argument('-o', '--output', help='Image output file')
-    ap.add_argument('-d', '--debug', action="store_true",
+    argument_parser.add_argument('-o', '--output', help='Image output file')
+    argument_parser.add_argument('-d', '--debug', action="store_true",
                     help='Add debugging metrics in the image output file')
-    ap.add_argument('file', help='Input image file')
-    args = ap.parse_args()
+    argument_parser.add_argument('file', help='Input image file')
+    args = argument_parser.parse_args()
 
     load_cascades(args.data_dir)
 
