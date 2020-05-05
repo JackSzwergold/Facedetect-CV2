@@ -193,6 +193,10 @@ def try_detect(biggest=False):
 	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 	############################################################################
+	# Equalize the histogram.
+	image = cv2.equalizeHist(image)
+
+	############################################################################
 	# Roll through the cascades.
 	for THIS_CASCADE in CASCADES_TO_USE:
 
