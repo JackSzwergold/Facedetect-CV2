@@ -193,26 +193,32 @@ def mssim_norm(X, Y, K1=0.01, K2=0.03, win_size=11, sigma=1.5):
 ################################################################################
 # The 'face_detect' function.
 def face_detect(im, biggest=False):
+
+    ############################################################################
+    # Set some values.
     side = math.sqrt(im.size)
     minlen = int(side / 20)
     maxlen = int(side / 2)
-    flags = cv2.CASCADE_DO_CANNY_PRUNING
 
-    # optimize queries when possible
+    ############################################################################
+    # Set some flags.
+    flags = cv2.CASCADE_DO_CANNY_PRUNING
     if biggest:
         flags |= cv2.CASCADE_FIND_BIGGEST_OBJECT
 
-    # deal with the gray image
+    ############################################################################
+    # Convert the image to grayscale.
     im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     im = cv2.equalizeHist(im)
 
+    ############################################################################
     # frontal faces
     cc1 = CASCADES['HAAR_FRONTALFACE_ALT2']
     cc2 = CASCADES['HAAR_FRONTALFACE_DEFAULT']
-    features = cc1.detectMultiScale(im, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
-    if len(features) == 0:
-        features = cc2.detectMultiScale(im, 1.4, 6, flags, (minlen, minlen), (maxlen, maxlen))
-    return features
+    results = cc1.detectMultiScale(im, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
+    if len(results) == 0:
+        results = cc2.detectMultiScale(im, 1.4, 6, flags, (minlen, minlen), (maxlen, maxlen))
+    return results
 
 ################################################################################
 # The 'face_detect_file' function.
