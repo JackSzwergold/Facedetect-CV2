@@ -223,11 +223,11 @@ def face_detect(image, biggest=False):
 ################################################################################
 # The 'face_detect_file' function.
 def face_detect_file(path, biggest=False):
-    im = cv2.imread(path)
-    if im is None:
+    image = cv2.imread(path)
+    if image is None:
         fatal("cannot load input image {}".format(path))
-    features = face_detect(im, biggest)
-    return im, features
+    features = face_detect(image, biggest)
+    return image, features
 
 ################################################################################
 # The 'pairwise_similarity' function.
@@ -266,7 +266,7 @@ def __main__():
 
     ############################################################################
     # detect faces in input image
-    im, features = face_detect_file(args.file, args.query or args.biggest)
+    image, features = face_detect_file(args.file, args.query or args.biggest)
 
     ############################################################################
     # match against the requested face
@@ -279,7 +279,7 @@ def __main__():
         sim_features = []
         sim_threshold = args.search_threshold / 100
         sim_template = norm_rect(s_im, s_features[0])
-        for i, score in enumerate(pairwise_similarity(im, features, sim_template)):
+        for i, score in enumerate(pairwise_similarity(image, features, sim_template)):
             if score >= sim_threshold:
                 sim_scores.append(score)
                 sim_features.append(features[i])
@@ -295,7 +295,7 @@ def __main__():
     scores = []
     best = None
     if len(features) and (args.debug or args.best or args.biggest or sim_scores):
-        scores, best = rank(im, features)
+        scores, best = rank(image, features)
         if sim_scores:
             for i in range(len(features)):
                 scores[i]['MSSIM'] = sim_scores[i]
@@ -303,7 +303,7 @@ def __main__():
     ############################################################################
     # debug features
     if args.output:
-        im = cv2.imread(args.file)
+        image = cv2.imread(args.file)
         font = cv2.FONT_HERSHEY_SIMPLEX
         fontHeight = cv2.getTextSize("", font, 0.5, 1)[0][1] + 5
 
@@ -316,8 +316,8 @@ def __main__():
 
             xy1 = (rect[0], rect[1])
             xy2 = (rect[0] + rect[2], rect[1] + rect[3])
-            cv2.rectangle(im, xy1, xy2, (0, 0, 0), 4)
-            cv2.rectangle(im, xy1, xy2, fg, 2)
+            cv2.rectangle(image, xy1, xy2, (0, 0, 0), 4)
+            cv2.rectangle(image, xy1, xy2, fg, 2)
 
             if args.debug:
                 lines = []
@@ -325,10 +325,10 @@ def __main__():
                     lines.append("{}: {}".format(k, v))
                 h = rect[1] + rect[3] + fontHeight
                 for line in lines:
-                    cv2.putText(im, line, (rect[0], h), font, 0.5, fg, 1, cv2.LINE_AA)
+                    cv2.putText(image, line, (rect[0], h), font, 0.5, fg, 1, cv2.LINE_AA)
                     h += fontHeight
 
-        cv2.imwrite(args.output, im)
+        cv2.imwrite(args.output, image)
 
     ############################################################################
     # output
