@@ -95,14 +95,14 @@ def fatal(msg):
 ################################################################################
 # The 'load_cascades' function.
 def load_cascades(data_dir):
-    for k, v in PROFILES.items():
-        v = os.path.join(data_dir, v)
+    for key, value in PROFILES.items():
+        value = os.path.join(data_dir, value)
         try:
             if not os.path.exists(v):
                 raise cv2.error('no such file')
-            CASCADES[k] = cv2.CascadeClassifier(v)
+            CASCADES[k] = cv2.CascadeClassifier(value)
         except cv2.error:
-            fatal("cannot load {} from {}".format(k, v))
+            fatal("cannot load {} from {}".format(key, value))
 
 ################################################################################
 # The 'crop_rect' function.
