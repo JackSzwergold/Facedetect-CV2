@@ -54,6 +54,8 @@ PROFILES = {
     'HAAR_FRONTALFACE_DEFAULT': 'haarcascade_frontalface_default.xml',
     'HAAR_FRONTALFACE_ALT': 'haarcascade_frontalface_alt.xml',
     'HAAR_FRONTALFACE_ALT2': 'haarcascade_frontalface_alt2.xml',
+    'HAAR_PROFILEFACE': 'haarcascade_profileface.xml',
+    'HAAR_FULLBODY': 'haarcascade_fullbody.xml',
 }
 
 ################################################################################
