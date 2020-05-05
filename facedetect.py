@@ -38,37 +38,17 @@ import math
 import sys
 import os
 
-
 ################################################################################
-# CV compatibility stubs
-if 'IMREAD_GRAYSCALE' not in dir(cv2):
-    ############################################################################
-    # <2.4
-    cv2.IMREAD_GRAYSCALE = 0
-if 'cv' in dir(cv2):
-    ############################################################################
-    # <3.0
-    cv2.CASCADE_DO_CANNY_PRUNING = cv2.cv.CV_HAAR_DO_CANNY_PRUNING
-    cv2.CASCADE_FIND_BIGGEST_OBJECT = cv2.cv.CV_HAAR_FIND_BIGGEST_OBJECT
-    cv2.FONT_HERSHEY_SIMPLEX = cv2.cv.InitFont(cv2.cv.CV_FONT_HERSHEY_SIMPLEX, 0.5, 0.5, 0, 1, cv2.cv.CV_AA)
-    cv2.LINE_AA = cv2.cv.CV_AA
-
-    def getTextSize(buf, font, scale, thickness):
-        return cv2.cv.GetTextSize(buf, font)
-
-    def putText(image, line, pos, font, scale, color, thickness, lineType):
-        return cv2.cv.PutText(cv2.cv.fromarray(image), line, pos, font, color)
-
-    cv2.getTextSize = getTextSize
-    cv2.putText = putText
-
-
-################################################################################
-# Profiles
+# Set the data directory root.
 # DATA_DIR = '/usr/share/opencv/'
 DATA_DIR = cv2.data.haarcascades
+
+################################################################################
+# Init the cascahes.
 CASCADES = {}
 
+################################################################################
+# Define the profiles.
 PROFILES = {
     'HAAR_FRONTALFACE_ALT_TREE': 'haarcascade_frontalface_alt_tree.xml',
     'HAAR_FRONTALFACE_DEFAULT': 'haarcascade_frontalface_default.xml',
@@ -77,7 +57,7 @@ PROFILES = {
 }
 
 ################################################################################
-# Face normalization
+# Face normalization.
 NORM_SIZE = 100
 NORM_MARGIN = 10
 
