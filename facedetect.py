@@ -59,7 +59,7 @@ PROFILES = {
 }
 
 ################################################################################
-# Face normalization.
+# Face normalization values.
 NORM_SIZE = 100
 NORM_MARGIN = 10
 
@@ -247,11 +247,11 @@ def __main__():
     load_cascades(args.data_dir)
 
     ############################################################################
-    # detect faces in input image
+    # Detect faces in input image.
     image, features = face_detect_file(args.file, args.query or args.biggest)
 
     ############################################################################
-    # match against the requested face
+    # Match against the requested face.
     sim_scores = None
     if args.search:
         s_im, s_features = face_detect_file(args.search, True)
@@ -268,12 +268,12 @@ def __main__():
         features = sim_features
 
     ############################################################################
-    # exit early if possible
+    # Exit early if possible.
     if args.query:
         return 0 if len(features) else 2
 
     ############################################################################
-    # compute scores
+    # Compute scores.
     scores = []
     best = None
     if len(features) and (args.debug or args.best or args.biggest or sim_scores):
@@ -283,7 +283,7 @@ def __main__():
                 scores[i]['MSSIM'] = sim_scores[i]
 
     ############################################################################
-    # debug features
+    # Debug features.
     if args.output:
         image = cv2.imread(args.file)
         font = cv2.FONT_HERSHEY_SIMPLEX
@@ -313,7 +313,7 @@ def __main__():
         cv2.imwrite(args.output, image)
 
     ############################################################################
-    # output
+    # Output.
     if (args.best or args.biggest) and best is not None:
         features = [features[best]]
 
@@ -328,6 +328,7 @@ def __main__():
 
     return 0
 
-
+################################################################################
+# And here’s where we invoke it and get the the output.
 if __name__ == '__main__':
     sys.exit(__main__())
