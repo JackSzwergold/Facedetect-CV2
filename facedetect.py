@@ -40,8 +40,8 @@ import os
 
 ################################################################################
 # Set the data directory root.
-# DATA_DIR = '/usr/share/opencv/'
-DATA_DIR = cv2.data.haarcascades
+# DATA_DIRECTORY = '/usr/share/opencv/'
+DATA_DIRECTORY = cv2.data.haarcascades
 
 ################################################################################
 # Init the cascahes.
@@ -230,7 +230,7 @@ def __main__():
                     help='Extract only the best matching face')
     argument_parser.add_argument('-c', '--center', action="store_true",
                     help='Print only the center coordinates')
-    argument_parser.add_argument('--data-dir', metavar='DIRECTORY', default=DATA_DIR,
+    argument_parser.add_argument('--data-dir', metavar='DIRECTORY', default=DATA_DIRECTORY,
                     help='OpenCV data files directory')
     argument_parser.add_argument('-q', '--query', action="store_true",
                     help='Query only (exit 0: face detected, 2: no detection)')
