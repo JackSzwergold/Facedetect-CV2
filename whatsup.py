@@ -50,7 +50,7 @@ debug = False
 
 ################################################################################
 # Set the cascade data directory and related stuff.
-DATA_DIRECTORY = '/usr/local/lib/python3.7/site-packages/cv2/data/'
+DATA_DIRECTORY = cv2.data.haarcascades
 CASCADES_TO_USE = ('haarcascade_profileface.xml', 'haarcascade_fullbody.xml', 'haarcascade_frontalface_alt.xml', 'haarcascade_frontalface_default.xml')
 
 ################################################################################
