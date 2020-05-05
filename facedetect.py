@@ -192,11 +192,11 @@ def mssim_norm(X, Y, K1=0.01, K2=0.03, win_size=11, sigma=1.5):
 
 ################################################################################
 # The 'face_detect' function.
-def face_detect(im, biggest=False):
+def face_detect(image, biggest=False):
 
     ############################################################################
     # Set some values.
-    side = math.sqrt(im.size)
+    side = math.sqrt(image.size)
     minlen = int(side / 20)
     maxlen = int(side / 2)
 
@@ -208,16 +208,16 @@ def face_detect(im, biggest=False):
 
     ############################################################################
     # Convert the image to grayscale.
-    im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    im = cv2.equalizeHist(im)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    image = cv2.equalizeHist(image)
 
     ############################################################################
     # frontal faces
     cc1 = CASCADES['HAAR_FRONTALFACE_ALT2']
     cc2 = CASCADES['HAAR_FRONTALFACE_DEFAULT']
-    results = cc1.detectMultiScale(im, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
+    results = cc1.detectMultiScale(image, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
     if len(results) == 0:
-        results = cc2.detectMultiScale(im, 1.4, 6, flags, (minlen, minlen), (maxlen, maxlen))
+        results = cc2.detectMultiScale(image, 1.4, 6, flags, (minlen, minlen), (maxlen, maxlen))
     return results
 
 ################################################################################
