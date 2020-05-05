@@ -56,8 +56,8 @@ if 'cv' in dir(cv2):
     def getTextSize(buf, font, scale, thickness):
         return cv2.cv.GetTextSize(buf, font)
 
-    def putText(im, line, pos, font, scale, color, thickness, lineType):
-        return cv2.cv.PutText(cv2.cv.fromarray(im), line, pos, font, color)
+    def putText(image, line, pos, font, scale, color, thickness, lineType):
+        return cv2.cv.PutText(cv2.cv.fromarray(image), line, pos, font, color)
 
     cv2.getTextSize = getTextSize
     cv2.putText = putText
@@ -106,19 +106,19 @@ def load_cascades(data_dir):
 
 ################################################################################
 # The 'crop_rect' function.
-def crop_rect(im, rect, shave=0):
-    return im[rect[1]+shave:rect[1]+rect[3]-shave,
+def crop_rect(image, rect, shave=0):
+    return image[rect[1]+shave:rect[1]+rect[3]-shave,
               rect[0]+shave:rect[0]+rect[2]-shave]
 
 ################################################################################
 # The 'crop_rect' function.
-def shave_margin(im, margin):
-    return im[margin:-margin, margin:-margin]
+def shave_margin(image, margin):
+    return image[margin:-margin, margin:-margin]
 
 ################################################################################
 # The 'norm_rect' function.
-def norm_rect(im, rect, equalize=True, same_aspect=False):
-    roi = crop_rect(im, rect)
+def norm_rect(image, rect, equalize=True, same_aspect=False):
+    roi = crop_rect(image, rect)
     if equalize:
         roi = cv2.equalizeHist(roi)
     side = NORM_SIZE + NORM_MARGIN
@@ -132,19 +132,19 @@ def norm_rect(im, rect, equalize=True, same_aspect=False):
 
 ################################################################################
 # The 'rank' function.
-def rank(im, rects):
+def rank(image, rects):
     scores = []
     best = None
 
     for i in range(len(rects)):
         rect = rects[i]
-        roi_n = norm_rect(im, rect, equalize=False, same_aspect=True)
+        roi_n = norm_rect(image, rect, equalize=False, same_aspect=True)
         roi_l = cv2.Laplacian(roi_n, cv2.CV_8U)
         e = np.sum(roi_l) / (roi_n.shape[0] * roi_n.shape[1])
 
-        dx = im.shape[1] / 2 - rect[0] + rect[2] / 2
-        dy = im.shape[0] / 2 - rect[1] + rect[3] / 2
-        d = math.sqrt(dx ** 2 + dy ** 2) / (max(im.shape) / 2)
+        dx = image.shape[1] / 2 - rect[0] + rect[2] / 2
+        dy = image.shape[0] / 2 - rect[1] + rect[3] / 2
+        d = math.sqrt(dx ** 2 + dy ** 2) / (max(image.shape) / 2)
 
         s = (rect[2] + rect[3]) / 2
         scores.append({'s': s, 'e': e, 'd': d})
@@ -213,11 +213,11 @@ def face_detect(image, biggest=False):
 
     ############################################################################
     # frontal faces
-    cc1 = CASCADES['HAAR_FRONTALFACE_ALT2']
-    cc2 = CASCADES['HAAR_FRONTALFACE_DEFAULT']
-    results = cc1.detectMultiScale(image, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
+    cc = CASCADES['HAAR_FRONTALFACE_ALT2']
+    results = cc.detectMultiScale(image, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
     if len(results) == 0:
-        results = cc2.detectMultiScale(image, 1.4, 6, flags, (minlen, minlen), (maxlen, maxlen))
+        cc = CASCADES['HAAR_FRONTALFACE_DEFAULT']
+        results = cc.detectMultiScale(image, 1.4, 6, flags, (minlen, minlen), (maxlen, maxlen))
     return results
 
 ################################################################################
@@ -231,10 +231,10 @@ def face_detect_file(path, biggest=False):
 
 ################################################################################
 # The 'pairwise_similarity' function.
-def pairwise_similarity(im, features, template, **mssim_args):
+def pairwise_similarity(image, features, template, **mssim_args):
     template = np.float32(template) / 255
     for rect in features:
-        roi = norm_rect(im, rect)
+        roi = norm_rect(image, rect)
         roi = np.float32(roi) / 255
         yield mssim_norm(roi, template, **mssim_args)
 
