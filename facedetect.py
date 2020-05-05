@@ -1,7 +1,34 @@
 #!/usr/bin/env python3
+
+################################################################################
+# __        ___           _
+# \ \      / / |__   __ _| |_ ___ _   _ _ __
+#  \ \ /\ / /| '_ \ / _` | __/ __| | | | '_ \
+#   \ V  V / | | | | (_| | |_\__ \ |_| | |_) |
+#    \_/\_/  |_| |_|\__,_|\__|___/\__,_| .__/
+#                                      |_|
+#
+# 2020-05-04: An updated version of uri D'Elia’s “Facedetect” script. Now uses
+# Python3 and CV2 methods and conventions.
+#
+# Usage: facedetect [filepath]
+#
+# Output: x y width height
+#
+################################################################################
+
+################################################################################
 # facedetect: a simple face detector for batch processing
 # Copyright(c) 2013-2017 by wave++ "Yuri D'Elia" <wavexx@thregr.org>
 # Distributed under GPLv2+ (see COPYING) WITHOUT ANY WARRANTY.
+#
+# Primary source:
+# 	https://www.thregr.org/~wavexx/software/facedetect/
+#
+################################################################################
+
+################################################################################
+# Import various modules and functions.
 from __future__ import print_function, division, generators, unicode_literals
 
 import argparse
@@ -12,11 +39,14 @@ import sys
 import os
 
 
+################################################################################
 # CV compatibility stubs
 if 'IMREAD_GRAYSCALE' not in dir(cv2):
+    ############################################################################
     # <2.4
     cv2.IMREAD_GRAYSCALE = 0
 if 'cv' in dir(cv2):
+    ############################################################################
     # <3.0
     cv2.CASCADE_DO_CANNY_PRUNING = cv2.cv.CV_HAAR_DO_CANNY_PRUNING
     cv2.CASCADE_FIND_BIGGEST_OBJECT = cv2.cv.CV_HAAR_FIND_BIGGEST_OBJECT
@@ -33,6 +63,7 @@ if 'cv' in dir(cv2):
     cv2.putText = putText
 
 
+################################################################################
 # Profiles
 # DATA_DIR = '/usr/share/opencv/'
 DATA_DIR = cv2.data.haarcascades
@@ -45,22 +76,24 @@ PROFILES = {
     'HAAR_FRONTALFACE_ALT2': 'haarcascade_frontalface_alt2.xml',
 }
 
-
+################################################################################
 # Face normalization
 NORM_SIZE = 100
 NORM_MARGIN = 10
 
-
-# Support functions
+################################################################################
+# The 'error' function.
 def error(msg):
     sys.stderr.write("{}: error: {}\n".format(os.path.basename(sys.argv[0]), msg))
 
-
+################################################################################
+# The 'fatal' function.
 def fatal(msg):
     error(msg)
     sys.exit(1)
 
-
+################################################################################
+# The 'load_cascades' function.
 def load_cascades(data_dir):
     for k, v in PROFILES.items():
         v = os.path.join(data_dir, v)
@@ -71,16 +104,19 @@ def load_cascades(data_dir):
         except cv2.error:
             fatal("cannot load {} from {}".format(k, v))
 
-
+################################################################################
+# The 'crop_rect' function.
 def crop_rect(im, rect, shave=0):
     return im[rect[1]+shave:rect[1]+rect[3]-shave,
               rect[0]+shave:rect[0]+rect[2]-shave]
 
-
+################################################################################
+# The 'crop_rect' function.
 def shave_margin(im, margin):
     return im[margin:-margin, margin:-margin]
 
-
+################################################################################
+# The 'norm_rect' function.
 def norm_rect(im, rect, equalize=True, same_aspect=False):
     roi = crop_rect(im, rect)
     if equalize:
@@ -94,7 +130,8 @@ def norm_rect(im, rect, equalize=True, same_aspect=False):
     roi = cv2.resize(roi, dsize, interpolation=cv2.INTER_CUBIC)
     return shave_margin(roi, NORM_MARGIN)
 
-
+################################################################################
+# The 'rank' function.
 def rank(im, rects):
     scores = []
     best = None
@@ -128,7 +165,8 @@ def rank(im, rects):
 
     return scores, ranks[0]
 
-
+################################################################################
+# The 'mssim_norm' function.
 def mssim_norm(X, Y, K1=0.01, K2=0.03, win_size=11, sigma=1.5):
     C1 = K1 ** 2
     C2 = K2 ** 2
@@ -152,7 +190,8 @@ def mssim_norm(X, Y, K1=0.01, K2=0.03, win_size=11, sigma=1.5):
 
     return np.mean(shave_margin(S, (win_size - 1) // 2))
 
-
+################################################################################
+# The 'face_detect' function.
 def face_detect(im, biggest=False):
     side = math.sqrt(im.size)
     minlen = int(side / 20)
@@ -175,7 +214,8 @@ def face_detect(im, biggest=False):
         features = cc2.detectMultiScale(im, 1.4, 6, flags, (minlen, minlen), (maxlen, maxlen))
     return features
 
-
+################################################################################
+# The 'face_detect_file' function.
 def face_detect_file(path, biggest=False):
     im = cv2.imread(path)
     if im is None:
@@ -183,7 +223,8 @@ def face_detect_file(path, biggest=False):
     features = face_detect(im, biggest)
     return im, features
 
-
+################################################################################
+# The 'pairwise_similarity' function.
 def pairwise_similarity(im, features, template, **mssim_args):
     template = np.float32(template) / 255
     for rect in features:
@@ -191,7 +232,8 @@ def pairwise_similarity(im, features, template, **mssim_args):
         roi = np.float32(roi) / 255
         yield mssim_norm(roi, template, **mssim_args)
 
-
+################################################################################
+# The '__main__' function.
 def __main__():
     ap = argparse.ArgumentParser(description='A simple face detector for batch processing')
     ap.add_argument('--biggest', action="store_true",
@@ -216,9 +258,11 @@ def __main__():
 
     load_cascades(args.data_dir)
 
+    ############################################################################
     # detect faces in input image
     im, features = face_detect_file(args.file, args.query or args.biggest)
 
+    ############################################################################
     # match against the requested face
     sim_scores = None
     if args.search:
@@ -235,10 +279,12 @@ def __main__():
                 sim_features.append(features[i])
         features = sim_features
 
+    ############################################################################
     # exit early if possible
     if args.query:
         return 0 if len(features) else 2
 
+    ############################################################################
     # compute scores
     scores = []
     best = None
@@ -248,6 +294,7 @@ def __main__():
             for i in range(len(features)):
                 scores[i]['MSSIM'] = sim_scores[i]
 
+    ############################################################################
     # debug features
     if args.output:
         im = cv2.imread(args.file)
@@ -277,6 +324,7 @@ def __main__():
 
         cv2.imwrite(args.output, im)
 
+    ############################################################################
     # output
     if (args.best or args.biggest) and best is not None:
         features = [features[best]]
