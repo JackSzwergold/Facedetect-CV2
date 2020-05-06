@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# __        ___           _
-# \ \      / / |__   __ _| |_ ___ _   _ _ __
-#  \ \ /\ / /| '_ \ / _` | __/ __| | | | '_ \
-#   \ V  V / | | | | (_| | |_\__ \ |_| | |_) |
-#    \_/\_/  |_| |_|\__,_|\__|___/\__,_| .__/
-#                                      |_|
+#  _____                  _      _            _
+# |  ___|_ _  ___ ___  __| | ___| |_ ___  ___| |_
+# | |_ / _` |/ __/ _ \/ _` |/ _ \ __/ _ \/ __| __|
+# |  _| (_| | (_|  __/ (_| |  __/ ||  __/ (__| |_
+# |_|  \__,_|\___\___|\__,_|\___|\__\___|\___|\__|
 #
 # 2020-05-04: An updated version of uri D'Elia’s “Facedetect” script. Now uses
 # Python3 and CV2 methods and conventions.
@@ -44,19 +43,15 @@ import os
 DATA_DIRECTORY = cv2.data.haarcascades
 
 ################################################################################
-# Init the cascahes.
-CASCADES = {}
-
-################################################################################
 # Define the profiles.
 PROFILES = {
-    'HAAR_FRONTALFACE_ALT_TREE': 'haarcascade_frontalface_alt_tree.xml',
-    'HAAR_FRONTALFACE_DEFAULT': 'haarcascade_frontalface_default.xml',
-    'HAAR_FRONTALFACE_ALT': 'haarcascade_frontalface_alt.xml',
-    'HAAR_FRONTALFACE_ALT2': 'haarcascade_frontalface_alt2.xml',
-    'HAAR_PROFILEFACE': 'haarcascade_profileface.xml',
-    'HAAR_FULLBODY': 'haarcascade_fullbody.xml',
+    'haarcascade_frontalface_alt2.xml': { 'scaleFactor': 1.3, 'minNeighbors': 6 },
+    'haarcascade_frontalface_default.xml': { 'scaleFactor': 1.4, 'minNeighbors': 6 },
 }
+
+################################################################################
+# Init the cascahes.
+CASCADES = {}
 
 ################################################################################
 # Face normalization values.
@@ -78,13 +73,13 @@ def fatal(msg):
 # The 'load_cascades' function.
 def load_cascades(data_dir):
     for key, value in PROFILES.items():
-        value = os.path.join(data_dir, value)
+        key_full = os.path.join(data_dir, key)
         try:
-            if not os.path.exists(value):
+            if not os.path.exists(key_full):
                 raise cv2.error('no such file')
-            CASCADES[key] = cv2.CascadeClassifier(value)
+            CASCADES[key] = cv2.CascadeClassifier(key_full)
         except cv2.error:
-            fatal("cannot load {} from {}".format(key, value))
+            fatal("cannot load {}".format(key))
 
 ################################################################################
 # The 'crop_rect' function.
@@ -179,8 +174,8 @@ def face_detect(image, biggest=False):
     ############################################################################
     # Set some values.
     side = math.sqrt(image.size)
-    minlen = int(side / 20)
-    maxlen = int(side / 2)
+    min_length = int(side / 20)
+    max_length = int(side / 2)
 
     ############################################################################
     # Set some flags.
@@ -194,12 +189,29 @@ def face_detect(image, biggest=False):
     image = cv2.equalizeHist(image)
 
     ############################################################################
-    # frontal faces
-    cc = CASCADES['HAAR_FRONTALFACE_ALT2']
-    results = cc.detectMultiScale(image, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
-    if len(results) == 0:
-        cc = CASCADES['HAAR_FRONTALFACE_DEFAULT']
-        results = cc.detectMultiScale(image, 1.4, 6, flags, (minlen, minlen), (maxlen, maxlen))
+    # Roll through the cascades and try to detect some faces.
+    for cc_key in CASCADES:
+
+        ########################################################################
+        # Assign the cascade.
+        cc = CASCADES[cc_key]
+
+        ########################################################################
+        # Get the scale factor and minimum neighbors from the profiles config.
+        scaleFactor = PROFILES[cc_key]['scaleFactor']
+        minNeighbors = PROFILES[cc_key]['minNeighbors']
+
+        ########################################################################
+        # Attempt to detect faces.
+        results = cc.detectMultiScale(image, scaleFactor, minNeighbors, flags, (min_length, min_length), (max_length, max_length))
+
+        ########################################################################
+        # If we have detected a face, return the results and exit the function.
+        if len(results) > 0:
+            return results
+
+    ############################################################################
+    # If no faces were found, just return the empty results.
     return results
 
 ################################################################################
@@ -244,6 +256,8 @@ def __main__():
     argument_parser.add_argument('file', help='Input image file')
     args = argument_parser.parse_args()
 
+    ############################################################################
+    # Load the cascades.
     load_cascades(args.data_dir)
 
     ############################################################################
