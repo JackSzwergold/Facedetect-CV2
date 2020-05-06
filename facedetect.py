@@ -51,7 +51,7 @@ CASCADES = {}
 # Define the profiles.
 PROFILES = {
     'haarcascade_frontalface_alt_tree.xml': { 'scaleFactor': 1.3, 'minNeighbors': 6 },
-    'haarcascade_frontalface_default.xml': { 'scaleFactor': 1.3, 'minNeighbors': 6 },
+    'haarcascade_frontalface_default.xml': { 'scaleFactor': 1.4, 'minNeighbors': 6 },
     'haarcascade_frontalface_alt.xml': { 'scaleFactor': 1.3, 'minNeighbors': 6 },
     'haarcascade_frontalface_alt2.xml': { 'scaleFactor': 1.3, 'minNeighbors': 6 },
     'haarcascade_profileface.xml': { 'scaleFactor': 1.3, 'minNeighbors': 6 },
@@ -196,10 +196,14 @@ def face_detect(image, biggest=False):
     ############################################################################
     # frontal faces
     cc = CASCADES['haarcascade_frontalface_alt2.xml']
-    results = cc.detectMultiScale(image, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
+    scaleFactor = PROFILES['haarcascade_frontalface_alt2.xml']['scaleFactor']
+    minNeighbors = PROFILES['haarcascade_frontalface_alt2.xml']['minNeighbors']
+    results = cc.detectMultiScale(image, scaleFactor, minNeighbors, flags, (minlen, minlen), (maxlen, maxlen))
     if len(results) == 0:
         cc = CASCADES['haarcascade_frontalface_default.xml']
-        results = cc.detectMultiScale(image, 1.4, 6, flags, (minlen, minlen), (maxlen, maxlen))
+        scaleFactor = PROFILES['haarcascade_frontalface_default.xml']['scaleFactor']
+        minNeighbors = PROFILES['haarcascade_frontalface_default.xml']['minNeighbors']
+        results = cc.detectMultiScale(image, scaleFactor, minNeighbors, flags, (minlen, minlen), (maxlen, maxlen))
     return results
 
 ################################################################################
