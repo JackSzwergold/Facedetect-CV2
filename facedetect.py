@@ -50,12 +50,12 @@ CASCADES = {}
 ################################################################################
 # Define the profiles.
 PROFILES = {
-    'HAAR_FRONTALFACE_ALT_TREE': 'haarcascade_frontalface_alt_tree.xml',
-    'HAAR_FRONTALFACE_DEFAULT': 'haarcascade_frontalface_default.xml',
-    'HAAR_FRONTALFACE_ALT': 'haarcascade_frontalface_alt.xml',
-    'HAAR_FRONTALFACE_ALT2': 'haarcascade_frontalface_alt2.xml',
-    'HAAR_PROFILEFACE': 'haarcascade_profileface.xml',
-    'HAAR_FULLBODY': 'haarcascade_fullbody.xml',
+    'haarcascade_frontalface_alt_tree.xml': 'haarcascade_frontalface_alt_tree.xml',
+    'haarcascade_frontalface_default.xml': 'haarcascade_frontalface_default.xml',
+    'haarcascade_frontalface_alt.xml': 'haarcascade_frontalface_alt.xml',
+    'haarcascade_frontalface_alt2.xml': 'haarcascade_frontalface_alt2.xml',
+    'haarcascade_profileface.xml': 'haarcascade_profileface.xml',
+    'haarcascade_fullbody.xml': 'haarcascade_fullbody.xml',
 }
 
 ################################################################################
@@ -78,13 +78,13 @@ def fatal(msg):
 # The 'load_cascades' function.
 def load_cascades(data_dir):
     for key, value in PROFILES.items():
-        value = os.path.join(data_dir, value)
+        key_full = os.path.join(data_dir, key)
         try:
-            if not os.path.exists(value):
+            if not os.path.exists(key_full):
                 raise cv2.error('no such file')
-            CASCADES[key] = cv2.CascadeClassifier(value)
+            CASCADES[key] = cv2.CascadeClassifier(key_full)
         except cv2.error:
-            fatal("cannot load {} from {}".format(key, value))
+            fatal("cannot load {}".format(key))
 
 ################################################################################
 # The 'crop_rect' function.
@@ -195,10 +195,10 @@ def face_detect(image, biggest=False):
 
     ############################################################################
     # frontal faces
-    cc = CASCADES['HAAR_FRONTALFACE_ALT2']
+    cc = CASCADES['haarcascade_frontalface_alt2.xml']
     results = cc.detectMultiScale(image, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
     if len(results) == 0:
-        cc = CASCADES['HAAR_FRONTALFACE_DEFAULT']
+        cc = CASCADES['haarcascade_frontalface_default.xml']
         results = cc.detectMultiScale(image, 1.4, 6, flags, (minlen, minlen), (maxlen, maxlen))
     return results
 
