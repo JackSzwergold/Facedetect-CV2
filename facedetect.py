@@ -195,16 +195,13 @@ def face_detect(image, biggest=False):
 
     ############################################################################
     # frontal faces
-    cc = CASCADES['haarcascade_frontalface_alt2.xml']
-    scaleFactor = PROFILES['haarcascade_frontalface_alt2.xml']['scaleFactor']
-    minNeighbors = PROFILES['haarcascade_frontalface_alt2.xml']['minNeighbors']
-    results = cc.detectMultiScale(image, scaleFactor, minNeighbors, flags, (minlen, minlen), (maxlen, maxlen))
-    if len(results) == 0:
-        cc = CASCADES['haarcascade_frontalface_default.xml']
-        scaleFactor = PROFILES['haarcascade_frontalface_default.xml']['scaleFactor']
-        minNeighbors = PROFILES['haarcascade_frontalface_default.xml']['minNeighbors']
+    for cc_key in CASCADES:
+        cc = CASCADES[cc_key]
+        scaleFactor = PROFILES[cc_key]['scaleFactor']
+        minNeighbors = PROFILES[cc_key]['minNeighbors']
         results = cc.detectMultiScale(image, scaleFactor, minNeighbors, flags, (minlen, minlen), (maxlen, maxlen))
-    return results
+        if len(results) > 0:
+            return results
 
 ################################################################################
 # The 'face_detect_file' function.
