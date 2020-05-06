@@ -190,7 +190,7 @@ def face_detect(image, biggest=False):
     image = cv2.equalizeHist(image)
 
     ############################################################################
-    # frontal faces
+    # Roll through the cascades and try to detect some faces.
     for cc_key in CASCADES:
         cc = CASCADES[cc_key]
         scaleFactor = PROFILES[cc_key]['scaleFactor']
@@ -198,6 +198,7 @@ def face_detect(image, biggest=False):
         results = cc.detectMultiScale(image, scaleFactor, minNeighbors, flags, (minlen, minlen), (maxlen, maxlen))
         if len(results) > 0:
             return results
+    return results
 
 ################################################################################
 # The 'face_detect_file' function.
