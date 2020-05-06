@@ -50,12 +50,12 @@ CASCADES = {}
 ################################################################################
 # Define the profiles.
 PROFILES = {
-    'haarcascade_frontalface_alt_tree.xml': 'haarcascade_frontalface_alt_tree.xml',
-    'haarcascade_frontalface_default.xml': 'haarcascade_frontalface_default.xml',
-    'haarcascade_frontalface_alt.xml': 'haarcascade_frontalface_alt.xml',
-    'haarcascade_frontalface_alt2.xml': 'haarcascade_frontalface_alt2.xml',
-    'haarcascade_profileface.xml': 'haarcascade_profileface.xml',
-    'haarcascade_fullbody.xml': 'haarcascade_fullbody.xml',
+    'haarcascade_frontalface_alt_tree.xml': {},
+    'haarcascade_frontalface_default.xml': {},
+    'haarcascade_frontalface_alt.xml': {},
+    'haarcascade_frontalface_alt2.xml': {},
+    'haarcascade_profileface.xml': {},
+    'haarcascade_fullbody.xml': {},
 }
 
 ################################################################################
