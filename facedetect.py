@@ -244,6 +244,8 @@ def __main__():
     argument_parser.add_argument('file', help='Input image file')
     args = argument_parser.parse_args()
 
+    ############################################################################
+    # Load the cascades.
     load_cascades(args.data_dir)
 
     ############################################################################
