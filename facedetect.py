@@ -175,8 +175,8 @@ def face_detect(image, biggest=False):
     ############################################################################
     # Set some values.
     side = math.sqrt(image.size)
-    minlen = int(side / 20)
-    maxlen = int(side / 2)
+    min_length = int(side / 20)
+    max_length = int(side / 2)
 
     ############################################################################
     # Set some flags.
@@ -192,12 +192,27 @@ def face_detect(image, biggest=False):
     ############################################################################
     # Roll through the cascades and try to detect some faces.
     for cc_key in CASCADES:
+
+        ########################################################################
+        # Assign the cascade.
         cc = CASCADES[cc_key]
+
+        ########################################################################
+        # Get the scale factor and minimum neighbors from the profiles config.
         scaleFactor = PROFILES[cc_key]['scaleFactor']
         minNeighbors = PROFILES[cc_key]['minNeighbors']
-        results = cc.detectMultiScale(image, scaleFactor, minNeighbors, flags, (minlen, minlen), (maxlen, maxlen))
+
+        ########################################################################
+        # Attempt to detect faces.
+        results = cc.detectMultiScale(image, scaleFactor, minNeighbors, flags, (min_length, min_length), (max_length, max_length))
+
+        ########################################################################
+        # If we have detected a face, return the results and exit the function.
         if len(results) > 0:
             return results
+
+    ############################################################################
+    # If no faces were found, just return the empty results.
     return results
 
 ################################################################################
