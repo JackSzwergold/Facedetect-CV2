@@ -51,11 +51,13 @@ debug = True
 ################################################################################
 # Set the cascade data directory and related stuff.
 DATA_DIRECTORY = cv2.data.haarcascades
-CASCADES_TO_USE = {
-	'haarcascade_profileface.xml',
-	'haarcascade_fullbody.xml',
-	'haarcascade_frontalface_alt.xml',
-	'haarcascade_frontalface_default.xml'
+PROFILES = {
+    'HAAR_PROFILEFACE': 'haarcascade_profileface.xml',
+    'FULLBODY': 'haarcascade_fullbody.xml',
+    'HAAR_FRONTALFACE_ALT_TREE': 'haarcascade_frontalface_alt_tree.xml',
+    'HAAR_FRONTALFACE_DEFAULT': 'haarcascade_frontalface_default.xml',
+    'HAAR_FRONTALFACE_ALT': 'haarcascade_frontalface_alt.xml',
+    'HAAR_FRONTALFACE_ALT2': 'haarcascade_frontalface_alt2.xml',
 }
 
 ################################################################################
@@ -210,7 +212,7 @@ def try_detect(biggest=False):
 
 	############################################################################
 	# Roll through the cascades.
-	for THIS_CASCADE in CASCADES_TO_USE:
+	for key, THIS_CASCADE in PROFILES.items():
 
 		########################################################################
 		# Initialize the counter.
