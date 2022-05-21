@@ -46,7 +46,7 @@ import pathlib
 
 ################################################################################
 # Enable debug mode.
-debug = False
+debug = True
 
 ################################################################################
 # Set the cascade data directory and related stuff.
@@ -107,7 +107,14 @@ def detect_faces(image, cc, filename, extension, biggest=False):
 		# If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
 		if (len(faces_detected) > 0):
 			rotation = counter * 90
-			return rotation
+			final = {
+			    'x': int(faces_detected[0][0]),
+			    'y': int(faces_detected[0][1]),
+			    'w': int(faces_detected[0][2]),
+			    'h': int(faces_detected[0][3]),
+			    'd': int(rotation),
+			}
+			return final
 
 		########################################################################
 		# Rotate the image 90 degrees clockwise.
@@ -292,11 +299,11 @@ if not os.path.isfile(sys.argv[-1]):
 
 ################################################################################
 # And here’s where we invoke it and get the the output.
-rotation = int(try_detect(True))
+image_data = try_detect(True)
 
 ################################################################################
-# Now, return the output.
-print (rotation)
+# Get the rotation from the image data.
+rotation = int(image_data['d'])
 
 ################################################################################
 # TODO: Some simple debugging. Don’t use Python to do image writing.
@@ -308,4 +315,5 @@ if debug:
 	image = cv2.imread(image_path)
 	image = rotate_image(image, rotation)
 	image_test = filename + '_' + str(rotation) + extension
+	print (image_data)
 	cv2.imwrite(image_test, image)
