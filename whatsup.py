@@ -308,6 +308,15 @@ image_data = try_detect(True)
 rotation = int(image_data['d'])
 
 ################################################################################
+# Set the image data string.
+image_data_string = ' ' . join(str(value) for value in image_data.values())
+
+################################################################################
+# Return the final return value.
+# print (rotation)
+print (image_data_string)
+
+################################################################################
 # TODO: Some simple debugging. Don’t use Python to do image writing.
 # Instead use the output with a batch processor like ImageMagick.
 if debug:
@@ -318,6 +327,4 @@ if debug:
 	image = rotate_image(image, rotation)
 	image_test = filename + '_' + str(rotation) + extension
 	image_data_string = ' ' . join(str(value) for value in image_data.values())
-	print (image_data)
-	print (image_data_string)
 	cv2.imwrite(image_test, image)
