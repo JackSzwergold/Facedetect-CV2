@@ -318,7 +318,8 @@ if debug:
 	image = rotate_image(image, rotation)
 	image_test = filename + '_' + str(rotation) + extension
 	# image_data_string = str(image_data['x']) + ' ' + str(image_data['y']) + ' ' + str(image_data['w']) + ' ' + str(image_data['h']) + ' ' + str(image_data['d'])
-	image_data_string = ' ' . join(image_data)
+    # image_data_string = ' ' . join(str(v) for v in image_data.values())
+    image_data_string = ' ' . join(image_data)
 	print (image_data)
 	print (image_data_string)
 	cv2.imwrite(image_test, image)
