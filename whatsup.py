@@ -96,13 +96,16 @@ def face_detection(image, cc, filename, extension, biggest=False):
 		# TODO: Debugging stuff.
 		if debug:
 			for x, y, w, h in faces_detected:
+
 				start_point = (x, y)
 				end_point = (x + w, y + h)
 				color = (0, 255, 0)
 				thickness = 5
+
 				image_facebox = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 				image_facebox = cv2.rectangle(image_facebox, start_point, end_point, color, thickness)
 				image_facebox_filename = filename + '_facebox' + extension
+
 				cv2.imwrite(image_facebox_filename, image_facebox)
 
 		########################################################################
@@ -323,8 +326,11 @@ if debug:
 	filename = pathlib.Path(sys.argv[-1]).stem
 	extension = pathlib.Path(sys.argv[-1]).suffix
 	image_path = os.path.abspath(sys.argv[-1])
+
 	image = cv2.imread(image_path)
 	image = rotate_image(image, rotation)
+
 	image_test = filename + '_' + str(rotation) + extension
 	image_data_string = ' ' . join(str(value) for value in image_data.values())
+
 	cv2.imwrite(image_test, image)
