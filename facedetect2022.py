@@ -90,7 +90,15 @@ def manage_face_detection(biggest= False):
 
     ############################################################################
     # Load the image into the script.
-    image = cv2.imread(image_filepath)
+    image_source = cv2.imread(image_filepath)
+
+    ###########################################################################
+    # Adjust the image for face detection purposes.
+    contrast = 1.25
+    brightness = 0
+    image = cv2.convertScaleAbs(image_source, alpha = contrast, beta = brightness)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    image = cv2.equalizeHist(image)
 
     ############################################################################
     # Send the image to the 'face_detection' method.
@@ -105,20 +113,12 @@ def manage_face_detection(biggest= False):
 
 ################################################################################
 # The 'face_detection' function.
-def face_detection(image_source, filename, extension, biggest=False):
+def face_detection(image, filename, extension, biggest=False):
 
     ############################################################################
     # Initialize the counter stuff.
     counter = 0
     rotation_max = 4
-
-    ###########################################################################
-    # Adjust the image for face detection purposes.
-    contrast = 1.25
-    brightness = 0
-    image = cv2.convertScaleAbs(image_source, alpha = contrast, beta = brightness)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    image = cv2.equalizeHist(image)
 
     ############################################################################
     # Set the CV2 flags.
