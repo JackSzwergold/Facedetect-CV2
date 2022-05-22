@@ -63,7 +63,17 @@ PROFILES = {
 
 ################################################################################
 # The 'manage_face_detection' function.
-def manage_face_detection(biggest=False):
+def manage_face_detection(biggest= False):
+
+    ############################################################################
+    # Set the defaults to return if actual face detection is false.
+    default = {
+        'x': 0,
+        'y': 0,
+        'w': 0,
+        'h': 0,
+        'd': 0,
+    }
 
     ############################################################################
     # Set the filename from the input argument.
@@ -82,33 +92,13 @@ def manage_face_detection(biggest=False):
     # Load the image into the script.
     image = cv2.imread(image_path)
 
-    ############################################################################
-    # Adjust contrast and brightness: Contrast (1.0-3.0), Brightness (0-100)
+    ########################################################################
+    # Adjust the image for face detection purposes.
     contrast = 1.25
     brightness = 0
-    image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
-
-    ############################################################################
-    # Convert the image to grayscale.
+    image = cv2.convertScaleAbs(image, alpha = contrast, beta = brightness)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    ############################################################################
-    # Equalize the histogram.
     image = cv2.equalizeHist(image)
-
-    ############################################################################
-    # Set the defaults to return if actual face detection is false.
-    default = {
-        'x': 0,
-        'y': 0,
-        'w': 0,
-        'h': 0,
-        'd': 0,
-    }
-
-    ############################################################################
-    # Get the dimensions of the image.
-    image_h, image_w = image.shape[:2]
 
     ############################################################################
     # Send the image to the 'face_detection' method.
@@ -175,6 +165,9 @@ def face_detection(image, filename, extension, biggest=False):
         # TODO: Some simple debugging. Don't use Python to do image writing.
         # Instead use the output with a batch processor like ImageMagick.
         if debug:
+            image_test = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+            image_test_filename = filename + '_test' + extension
+            cv2.imwrite(image_test_filename, image_test)
             for x, y, w, h in faces_found:
                 start_point = (x, y)
                 end_point = (x + w, y + h)
