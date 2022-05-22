@@ -166,14 +166,15 @@ def face_detection(image, filename, extension, biggest=False):
     if biggest:
         flags |= cv2.CASCADE_FIND_BIGGEST_OBJECT
 
+    cc1 = CASCADES['HAAR_FRONTALFACE_ALT2']
+    cc2 = CASCADES['HAAR_FRONTALFACE_DEFAULT']
+
     ############################################################################
     # Roll through the rotations to use.
     while counter < rotation_max:
 
         ########################################################################
         # Try and find faces.
-        cc1 = CASCADES['HAAR_FRONTALFACE_ALT2']
-        cc2 = CASCADES['HAAR_FRONTALFACE_DEFAULT']
         faces_found = cc1.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
         if len(faces_found) == 0:
             faces_found = cc2.detectMultiScale(image, 1.4, 6, flags, (min_length, min_length), (max_length, max_length))
