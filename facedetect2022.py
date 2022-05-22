@@ -141,16 +141,6 @@ def face_detection(image, filename, extension, biggest=False):
     rotation_max = 4
 
     ############################################################################
-    # Initialize the final values.
-    final = {
-        'x': 0,
-        'y': 0,
-        'w': 0,
-        'h': 0,
-        'd': 0,
-    }
-
-    ############################################################################
     # Set the min and max image size.
     side = math.sqrt(image.size)
     min_length = int(side / 20)
@@ -212,7 +202,7 @@ def face_detection(image, filename, extension, biggest=False):
             image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
             counter = counter + 1
 
-    return final
+    return False
 
 ################################################################################
 # The 'bright_side_detection' function.
@@ -338,8 +328,7 @@ image_data = manage_face_detection(True)
 
 ################################################################################
 # Get the rotation from the image data.
-# rotation = int(image_data['d'])
-rotation = image_data['d']
+rotation = int(image_data['d'])
 
 ################################################################################
 # Set the image data string.
