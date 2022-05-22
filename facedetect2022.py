@@ -140,8 +140,6 @@ def manage_face_detection(biggest=False):
     # If no faces are found, use the brightest side for orientation instead.
     if results is False:
         return default
-    else:
-        return bright_side_detection(image, filename, extension)
 
 ################################################################################
 # The 'face_detection' function.
@@ -198,7 +196,6 @@ def face_detection(image, filename, extension, biggest=False):
         ########################################################################
         # If a face is found, return the values. Or else, multiply the counter
         # by 90 to get the number of degrees the image should be rotated.
-        print(counter * 90)
         if (len(faces_found) > 0):
             rotation = counter * 90
             final = {
@@ -215,58 +212,6 @@ def face_detection(image, filename, extension, biggest=False):
             counter = counter + 1
 
     return False
-
-################################################################################
-# The 'bright_side_detection' function.
-def bright_side_detection(image, filename, extension):
-
-    ############################################################################
-    # Set the ratio used to slice up the image.
-    ratio = 3
-    boundary = (ratio - 1)
-
-    ############################################################################
-    # Set the tuple for resize dimensions.
-    resize = (5, 5)
-
-    ############################################################################
-    # Set the tuple for kernel size.
-    blur_kernel = (5, 5)
-
-    ############################################################################
-    # Set the mapping for rotation values.
-    rotation_map = {
-        'top': 0,
-        'left': 90,
-        'bottom': 180,
-        'right': 270
-    }
-
-    ############################################################################
-    # Get the dimensions of the image.
-    (image_h, image_w) = image.shape[:2]
-
-    ############################################################################
-    # Get sample chunks.
-    chunks = {}
-    chunks['top'] = image[0:round(image_h / ratio), 0:image_w]
-    chunks['left'] = image[0:image_h, 0:round(image_w / ratio)]
-    chunks['bottom'] = image[round(boundary * (image_h / ratio)):image_h, 0:image_w]
-    chunks['right'] = image[0:image_h, round(boundary * (image_w / ratio)):image_w]
-
-    ####################################################################
-    # Resize and blur the images to average things out.
-    samples = {}
-    for position in chunks:
-        samples[position] = cv2.mean(cv2.GaussianBlur(cv2.resize(chunks[position], resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT))[0]
-
-    ############################################################################
-    # Get the max value from the samples.
-    max_side = max(samples, key = samples.get)
-
-    ############################################################################
-    # Return the final return value.
-    return rotation_map[max_side]
 
 ################################################################################
 # The 'rotate_image' function.
