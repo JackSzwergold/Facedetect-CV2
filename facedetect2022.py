@@ -142,16 +142,6 @@ def face_detection(image, filename, extension, biggest=False):
     rotation_max = 4
 
     ############################################################################
-    # Initialize the final return value..
-    final = {
-        'x': 0,
-        'y': 0,
-        'w': 0,
-        'h': 0,
-        'd': 0,
-    }
-
-    ############################################################################
     # Set the min and max image size.
     side = math.sqrt(image.size)
     min_length = int(side / 20)
@@ -218,7 +208,7 @@ def face_detection(image, filename, extension, biggest=False):
         # Increment the counter.
         counter = counter + 1
 
-    return final
+    return False
 
 ################################################################################
 # The 'bright_side_detection' function.
@@ -341,11 +331,10 @@ load_cascades(DATA_DIRECTORY)
 ################################################################################
 # And here's where we invoke it and get the the output.
 image_data = manage_face_detection(True)
-print (image_data)
+
 ################################################################################
 # Get the rotation from the image data.
-# rotation = int(image_data['d'])
-rotation = 0
+rotation = int(image_data['d'])
 
 ################################################################################
 # Set the image data string.
