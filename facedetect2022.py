@@ -142,6 +142,16 @@ def face_detection(image, filename, extension, biggest=False):
     rotation_max = 4
 
     ############################################################################
+    # Initialize the final return value..
+    final = {
+        'x': 0,
+        'y': 0,
+        'w': 0,
+        'h': 0,
+        'd': 0,
+    }
+
+    ############################################################################
     # Set the min and max image size.
     side = math.sqrt(image.size)
     min_length = int(side / 20)
@@ -186,7 +196,6 @@ def face_detection(image, filename, extension, biggest=False):
 
         ########################################################################
         # If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
-        rotation = 0
         if (len(faces_found) > 0):
             rotation = counter * 90
             final = {
@@ -206,7 +215,7 @@ def face_detection(image, filename, extension, biggest=False):
         # Increment the counter.
         counter = counter + 1
 
-    return False
+    return final
 
 ################################################################################
 # The 'bright_side_detection' function.
@@ -227,7 +236,12 @@ def bright_side_detection(image, filename, extension):
 
     ############################################################################
     # Set the mapping for rotation values.
-    rotation_map = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
+    rotation_map = {
+        'top': 0,
+        'left': 90,
+        'bottom': 180,
+        'right': 270
+    }
 
     ############################################################################
     # Get the dimensions of the image.
@@ -324,10 +338,11 @@ load_cascades(DATA_DIRECTORY)
 ################################################################################
 # And here's where we invoke it and get the the output.
 image_data = manage_face_detection(True)
-
+print (image_data)
 ################################################################################
 # Get the rotation from the image data.
-rotation = int(image_data['d'])
+# rotation = int(image_data['d'])
+rotation = 0
 
 ################################################################################
 # Set the image data string.
