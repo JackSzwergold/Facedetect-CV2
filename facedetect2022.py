@@ -184,21 +184,19 @@ def face_detection(image, filename, extension, biggest=False):
         # TODO: Debugging stuff.
         if debug:
             for x, y, w, h in faces_found:
-
                 start_point = (x, y)
                 end_point = (x + w, y + h)
                 color = (0, 255, 0)
                 thickness = 5
-
                 image_facebox = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
                 image_facebox = cv2.rectangle(image_facebox, start_point, end_point, color, thickness)
                 image_facebox_filename = filename + '_facebox' + extension
-
                 cv2.imwrite(image_facebox_filename, image_facebox)
 
         ########################################################################
         # If a face is found, return the values. Or else, multiply the counter
         # by 90 to get the number of degrees the image should be rotated.
+        print(counter * 90)
         if (len(faces_found) > 0):
             rotation = counter * 90
             final = {
@@ -358,11 +356,8 @@ if debug:
     filename = pathlib.Path(sys.argv[-1]).stem
     extension = pathlib.Path(sys.argv[-1]).suffix
     image_path = os.path.abspath(sys.argv[-1])
-
     image = cv2.imread(image_path)
     image = rotate_image(image, rotation)
-
     image_test = filename + '_' + str(rotation) + extension
     image_data_string = ' ' . join(str(value) for value in image_data.values())
-
     cv2.imwrite(image_test, image)
