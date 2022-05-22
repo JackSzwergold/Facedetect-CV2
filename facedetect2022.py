@@ -98,6 +98,15 @@ def manage_face_detection(biggest=False):
     counter = 2
     count_minimum = 1
 
+    ############################################################################
+    # Set the defaults to return if actual face detection is false.
+    default = {
+        'x': 0,
+        'y': 0,
+        'w': 0,
+        'h': 0,
+        'd': 0,
+    }
 
     ############################################################################
     # Roll through the sizes.
@@ -129,7 +138,10 @@ def manage_face_detection(biggest=False):
 
     ############################################################################
     # If no faces are found, use the brightest side for orientation instead.
-    return bright_side_detection(image, filename, extension)
+    if results is False:
+        return default
+    else:
+        return bright_side_detection(image, filename, extension)
 
 ################################################################################
 # The 'face_detection' function.
