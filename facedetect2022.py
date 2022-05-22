@@ -47,15 +47,18 @@ import pathlib
 
 ################################################################################
 # Enable debug mode.
-debug = False
+debug = True
 
 ################################################################################
 # Set the cascade data directory, cascades and profiles.
 DATA_DIRECTORY = cv2.data.haarcascades
 CASCADES = {}
 PROFILES = {
+    'HAAR_PROFILEFACE': 'haarcascade_profileface.xml',
+    'HAAR_FULLBODY': 'haarcascade_fullbody.xml',
     'HAAR_FRONTALFACE_DEFAULT': 'haarcascade_frontalface_default.xml',
     'HAAR_FRONTALFACE_ALT2': 'haarcascade_frontalface_alt2.xml',
+    'HAAR_FRONTALFACE_ALT': 'haarcascade_frontalface_alt.xml',
 }
 
 ################################################################################
@@ -138,8 +141,11 @@ def face_detection(image, filename, extension, biggest=False):
 
     ############################################################################
     # Set the cascades.
-    cc1 = CASCADES['HAAR_FRONTALFACE_ALT2']
-    cc2 = CASCADES['HAAR_FRONTALFACE_DEFAULT']
+    cc_alt = CASCADES['HAAR_FRONTALFACE_ALT']
+    cc_alt2 = CASCADES['HAAR_FRONTALFACE_ALT2']
+    cc_default = CASCADES['HAAR_FRONTALFACE_DEFAULT']
+    cc_fullbody = CASCADES['HAAR_FULLBODY']
+    cc_profileface = CASCADES['HAAR_PROFILEFACE']
 
     ############################################################################
     # Roll through the rotations to use.
@@ -153,9 +159,17 @@ def face_detection(image, filename, extension, biggest=False):
 
         ########################################################################
         # Try and find faces.
-        faces_found = cc1.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+        faces_found = cc_alt2.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
         if len(faces_found) == 0:
-            faces_found = cc2.detectMultiScale(image, 1.4, 6, flags, (min_length, min_length), (max_length, max_length))
+            faces_found = cc_default.detectMultiScale(image, 1.4, 6, flags, (min_length, min_length), (max_length, max_length))
+        if len(faces_found) == 0:
+            faces_found = cc_default.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+        if len(faces_found) == 0:
+            faces_found = cc_alt.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+        if len(faces_found) == 0:
+            faces_found = cc_fullbody.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+        if len(faces_found) == 0:
+            faces_found = cc_profileface.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
 
         ########################################################################
         # TODO: Some simple debugging. Don't use Python to do image writing.
