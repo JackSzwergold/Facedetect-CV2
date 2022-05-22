@@ -114,7 +114,7 @@ def face_detection(image_source, filename, extension, biggest=False):
 
     ###########################################################################
     # Adjust the image for face detection purposes.
-    contrast = 2.50
+    contrast = 1.25
     brightness = 0
     image = cv2.convertScaleAbs(image_source, alpha = contrast, beta = brightness)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
