@@ -96,46 +96,39 @@ def manage_face_detection(biggest=False):
     # Equalize the histogram.
     image = cv2.equalizeHist(image)
 
+    ########################################################################
+    # Initialize the counter.
+    counter = 2
+    count_minimum = 1
+
+
     ############################################################################
-    # Roll through the cascades.
-    for key, THIS_CASCADE in PROFILES.items():
+    # Roll through the sizes.
+    while counter >= count_minimum:
 
         ########################################################################
-        # Initialize the counter.
-        counter = 2
-        count_minimum = 1
+        # Get the dimensions of the image.
+        image_h, image_w = image.shape[:2]
 
         ########################################################################
-        # Define the cascade classifier.
-        cc = cv2.CascadeClassifier(os.path.join(DATA_DIRECTORY, THIS_CASCADE))
+        # Calculate the new size for the images.
+        resize_h = round(image_h / counter)
+        resize_w = round(image_w / counter)
 
         ########################################################################
-        # Roll through the sizes.
-        while counter >= count_minimum:
+        # Resize the image.
+        image_resized = cv2.resize(image, (resize_w, resize_h), interpolation = cv2.INTER_CUBIC)
 
-            ####################################################################
-            # Get the dimensions of the image.
-            image_h, image_w = image.shape[:2]
+        ########################################################################
+        # Send the image to the 'face_detection' method.
+        results = face_detection(image_resized, filename, extension, biggest)
 
-            ####################################################################
-            # Calculate the new size for the images.
-            resize_h = round(image_h / counter)
-            resize_w = round(image_w / counter)
+        ########################################################################
+        # If we have results return the results.
+        if results is not False:
+            return results
 
-            ####################################################################
-            # Resize the image.
-            image_resized = cv2.resize(image, (resize_w, resize_h), interpolation = cv2.INTER_CUBIC)
-
-            ####################################################################
-            # Send the image to the 'face_detection' method.
-            results = face_detection(image_resized, cc, filename, extension, biggest)
-
-            ####################################################################
-            # If we have results return the results.
-            if results is not False:
-                return results
-
-            counter = counter - 1
+        counter = counter - 1
 
     ############################################################################
     # If no faces are found, use the brightest side for orientation instead.
@@ -143,7 +136,7 @@ def manage_face_detection(biggest=False):
 
 ################################################################################
 # The 'face_detection' function.
-def face_detection(image, cc, filename, extension, biggest=False):
+def face_detection(image, filename, extension, biggest=False):
 
     ############################################################################
     # Initialize the counter.
@@ -169,23 +162,13 @@ def face_detection(image, cc, filename, extension, biggest=False):
     # Roll through the rotations to use.
     while counter < rotation_maximum:
 
-
-        # ########################################################################
-        # # deal with the gray image
-        # im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-        # im = cv2.equalizeHist(im)
-
-        # ########################################################################
-        # # frontal faces
-        # cc1 = CASCADES['HAAR_FRONTALFACE_ALT2']
-        # cc2 = CASCADES['HAAR_FRONTALFACE_DEFAULT']
-        # faces_found = cc1.detectMultiScale(im, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
-        # if len(features) == 0:
-        #     faces_found = cc2.detectMultiScale(im, 1.4, 6, flags, (minlen, minlen), (maxlen, maxlen))
-
         ########################################################################
-        # Let's attempt to detect some faces.
-        faces_found = cc.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+        # Try and find faces.
+        cc1 = CASCADES['HAAR_FRONTALFACE_ALT2']
+        cc2 = CASCADES['HAAR_FRONTALFACE_DEFAULT']
+        faces_found = cc1.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+        if len(faces_found) == 0:
+            faces_found = cc2.detectMultiScale(image, 1.4, 6, flags, (min_length, min_length), (max_length, max_length))
 
         ########################################################################
         # TODO: Debugging stuff.
