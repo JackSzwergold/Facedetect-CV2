@@ -165,9 +165,9 @@ def face_detection(image_source, filename, extension, biggest=False):
         # TODO: Some simple debugging. Don't use Python to do image writing.
         # Instead use the output with a batch processor like ImageMagick.
         if debug:
-            image_test = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-            image_test_filename = filename + '_test' + extension
-            cv2.imwrite(image_test_filename, image_test)
+            # image_test = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+            # image_test_filename = filename + '_test' + extension
+            # cv2.imwrite(image_test_filename, image_test)
             for x, y, w, h in faces_found:
                 start_point = (x, y)
                 end_point = (x + w, y + h)
