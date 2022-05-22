@@ -8,7 +8,7 @@
 #    \_/\_/  |_| |_|\__,_|\__|___/\__,_| .__/
 #                                      |_|
 #
-# 2020-04-30: An updated version of Stuporglue’s “Whatsup” script. Now uses
+# 2020-04-30: An updated version of Stuporglue's “Whatsup” script. Now uses
 # Python3 and CV2 methods and conventions.
 #
 # Usage: whatsup [filepath]
@@ -61,8 +61,8 @@ PROFILES = {
 }
 
 ################################################################################
-# The 'detect_faces' function.
-def detect_faces(image, cc, filename, extension, biggest=False):
+# The 'face_detection' function.
+def face_detection(image, cc, filename, extension, biggest=False):
 
 	############################################################################
 	# Initialize the counter.
@@ -176,8 +176,8 @@ def detect_brightest_side(image, filename, extension):
 	return rotation_map[max_side]
 
 ################################################################################
-# The 'try_detect' function.
-def try_detect(biggest=False):
+# The 'manage_face_detection' function.
+def manage_face_detection(biggest=False):
 
 	############################################################################
 	# Set the filename from the input argument.
@@ -241,8 +241,8 @@ def try_detect(biggest=False):
 			image_resized = cv2.resize(image, (resize_w, resize_h), interpolation = cv2.INTER_CUBIC)
 
 			####################################################################
-			# Send the image to the 'dectectFaces' method.
-			results = detect_faces(image_resized, cc, filename, extension, biggest)
+			# Send the image to the 'face_detection' method.
+			results = face_detection(image_resized, cc, filename, extension, biggest)
 
 			####################################################################
 			# If we have results return the results.
@@ -300,8 +300,8 @@ if not os.path.isfile(sys.argv[-1]):
 	sys.exit(-1)
 
 ################################################################################
-# And here’s where we invoke it and get the the output.
-image_data = try_detect(True)
+# And here's where we invoke it and get the the output.
+image_data = manage_face_detection(True)
 
 ################################################################################
 # Get the rotation from the image data.
@@ -317,7 +317,7 @@ image_data_string = ' ' . join(str(value) for value in image_data.values())
 print (image_data_string)
 
 ################################################################################
-# TODO: Some simple debugging. Don’t use Python to do image writing.
+# TODO: Some simple debugging. Don't use Python to do image writing.
 # Instead use the output with a batch processor like ImageMagick.
 if debug:
 	filename = pathlib.Path(sys.argv[-1]).stem
