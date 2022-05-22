@@ -210,15 +210,19 @@ def face_detection(image, filename, extension, biggest=False):
             return final
             break
 
-        ########################################################################
-        # Rotate the image 90 degrees clockwise.
-        image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+        else:
 
-        ########################################################################
-        # Increment the counter.
-        counter = counter + 1
+            ####################################################################
+            # Rotate the image 90 degrees clockwise.
+            image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+
+            ####################################################################
+            # Increment the counter.
+            counter = counter + 1
 
     return final
+
+
 
 ################################################################################
 # The 'bright_side_detection' function.
