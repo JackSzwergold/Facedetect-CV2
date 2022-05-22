@@ -49,8 +49,9 @@ import pathlib
 debug = True
 
 ################################################################################
-# Set the cascade data directory and related stuff.
+# Set the cascade data directory, cascades and profiles.
 DATA_DIRECTORY = cv2.data.haarcascades
+CASCADES = {}
 PROFILES = {
     'HAAR_PROFILEFACE': 'haarcascade_profileface.xml',
     'FULLBODY': 'haarcascade_fullbody.xml',
@@ -59,124 +60,6 @@ PROFILES = {
     'HAAR_FRONTALFACE_ALT': 'haarcascade_frontalface_alt.xml',
     'HAAR_FRONTALFACE_ALT2': 'haarcascade_frontalface_alt2.xml',
 }
-
-################################################################################
-# The 'face_detection' function.
-def face_detection(image, cc, filename, extension, biggest=False):
-
-    ############################################################################
-    # Initialize the counter.
-    counter = 0
-    rotation_maximum = 4
-
-    ############################################################################
-    # Set the min and max image size.
-    side = math.sqrt(image.size)
-    min_length = int(side / 20)
-    max_length = int(side / 2)
-
-    ############################################################################
-    # Set the CV2 flags.
-    flags = cv2.CASCADE_DO_CANNY_PRUNING
-
-    ############################################################################
-    # If we are looking for the biggest face, set that flag.
-    if biggest:
-        flags |= cv2.CASCADE_FIND_BIGGEST_OBJECT
-
-    ############################################################################
-    # Roll through the rotations to use.
-    while counter < rotation_maximum:
-
-        ########################################################################
-        # Attempt to detect some faces.
-        faces_detected = cc.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
-
-        ########################################################################
-        # TODO: Debugging stuff.
-        if debug:
-            for x, y, w, h in faces_detected:
-
-                start_point = (x, y)
-                end_point = (x + w, y + h)
-                color = (0, 255, 0)
-                thickness = 5
-
-                image_facebox = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-                image_facebox = cv2.rectangle(image_facebox, start_point, end_point, color, thickness)
-                image_facebox_filename = filename + '_facebox' + extension
-
-                cv2.imwrite(image_facebox_filename, image_facebox)
-
-        ########################################################################
-        # If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
-        if (len(faces_detected) > 0):
-            rotation = counter * 90
-            final = {
-                'x': int(faces_detected[0][0]),
-                'y': int(faces_detected[0][1]),
-                'w': int(faces_detected[0][2]),
-                'h': int(faces_detected[0][3]),
-                'd': int(rotation),
-            }
-            return final
-
-        ########################################################################
-        # Rotate the image 90 degrees clockwise.
-        image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
-
-        ########################################################################
-        # Increment the counter.
-        counter = counter + 1
-
-    return False
-
-################################################################################
-# The 'bright_side_detection' function.
-def bright_side_detection(image, filename, extension):
-
-    ############################################################################
-    # Set the ratio used to slice up the image.
-    ratio = 3
-    boundary = (ratio - 1)
-
-    ############################################################################
-    # Set the tuple for resize dimensions.
-    resize = (5, 5)
-
-    ############################################################################
-    # Set the tuple for kernel size.
-    blur_kernel = (5, 5)
-
-    ############################################################################
-    # Set the mapping for rotation values.
-    rotation_map = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
-
-    ############################################################################
-    # Get the dimensions of the image.
-    (image_h, image_w) = image.shape[:2]
-
-    ############################################################################
-    # Get sample chunks.
-    chunks = {}
-    chunks['top'] = image[0:round(image_h / ratio), 0:image_w]
-    chunks['left'] = image[0:image_h, 0:round(image_w / ratio)]
-    chunks['bottom'] = image[round(boundary * (image_h / ratio)):image_h, 0:image_w]
-    chunks['right'] = image[0:image_h, round(boundary * (image_w / ratio)):image_w]
-
-    ####################################################################
-    # Resize and blur the images to average things out.
-    samples = {}
-    for position in chunks:
-        samples[position] = cv2.mean(cv2.GaussianBlur(cv2.resize(chunks[position], resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT))[0]
-
-    ############################################################################
-    # Get the max value from the samples.
-    max_side = max(samples, key = samples.get)
-
-    ############################################################################
-    # Return the final return value.
-    return rotation_map[max_side]
 
 ################################################################################
 # The 'manage_face_detection' function.
@@ -259,6 +142,138 @@ def manage_face_detection(biggest=False):
     return bright_side_detection(image, filename, extension)
 
 ################################################################################
+# The 'face_detection' function.
+def face_detection(image, cc, filename, extension, biggest=False):
+
+    ############################################################################
+    # Initialize the counter.
+    counter = 0
+    rotation_maximum = 4
+
+    ############################################################################
+    # Set the min and max image size.
+    side = math.sqrt(image.size)
+    min_length = int(side / 20)
+    max_length = int(side / 2)
+
+    ############################################################################
+    # Set the CV2 flags.
+    flags = cv2.CASCADE_DO_CANNY_PRUNING
+
+    ############################################################################
+    # If we are looking for the biggest face, set that flag.
+    if biggest:
+        flags |= cv2.CASCADE_FIND_BIGGEST_OBJECT
+
+    ############################################################################
+    # Roll through the rotations to use.
+    while counter < rotation_maximum:
+
+
+        # ########################################################################
+        # # deal with the gray image
+        # im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+        # im = cv2.equalizeHist(im)
+
+        # ########################################################################
+        # # frontal faces
+        # cc1 = CASCADES['HAAR_FRONTALFACE_ALT2']
+        # cc2 = CASCADES['HAAR_FRONTALFACE_DEFAULT']
+        # faces_found = cc1.detectMultiScale(im, 1.3, 6, flags, (minlen, minlen), (maxlen, maxlen))
+        # if len(features) == 0:
+        #     faces_found = cc2.detectMultiScale(im, 1.4, 6, flags, (minlen, minlen), (maxlen, maxlen))
+
+        ########################################################################
+        # Let's attempt to detect some faces.
+        faces_found = cc.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+
+        ########################################################################
+        # TODO: Debugging stuff.
+        if debug:
+            for x, y, w, h in faces_found:
+
+                start_point = (x, y)
+                end_point = (x + w, y + h)
+                color = (0, 255, 0)
+                thickness = 5
+
+                image_facebox = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+                image_facebox = cv2.rectangle(image_facebox, start_point, end_point, color, thickness)
+                image_facebox_filename = filename + '_facebox' + extension
+
+                cv2.imwrite(image_facebox_filename, image_facebox)
+
+        ########################################################################
+        # If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
+        if (len(faces_found) > 0):
+            rotation = counter * 90
+            final = {
+                'x': int(faces_found[0][0]),
+                'y': int(faces_found[0][1]),
+                'w': int(faces_found[0][2]),
+                'h': int(faces_found[0][3]),
+                'd': int(rotation),
+            }
+            return final
+
+        ########################################################################
+        # Rotate the image 90 degrees clockwise.
+        image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+
+        ########################################################################
+        # Increment the counter.
+        counter = counter + 1
+
+    return False
+
+################################################################################
+# The 'bright_side_detection' function.
+def bright_side_detection(image, filename, extension):
+
+    ############################################################################
+    # Set the ratio used to slice up the image.
+    ratio = 3
+    boundary = (ratio - 1)
+
+    ############################################################################
+    # Set the tuple for resize dimensions.
+    resize = (5, 5)
+
+    ############################################################################
+    # Set the tuple for kernel size.
+    blur_kernel = (5, 5)
+
+    ############################################################################
+    # Set the mapping for rotation values.
+    rotation_map = { 'top': 0, 'left': 90, 'bottom': 180, 'right': 270 }
+
+    ############################################################################
+    # Get the dimensions of the image.
+    (image_h, image_w) = image.shape[:2]
+
+    ############################################################################
+    # Get sample chunks.
+    chunks = {}
+    chunks['top'] = image[0:round(image_h / ratio), 0:image_w]
+    chunks['left'] = image[0:image_h, 0:round(image_w / ratio)]
+    chunks['bottom'] = image[round(boundary * (image_h / ratio)):image_h, 0:image_w]
+    chunks['right'] = image[0:image_h, round(boundary * (image_w / ratio)):image_w]
+
+    ####################################################################
+    # Resize and blur the images to average things out.
+    samples = {}
+    for position in chunks:
+        samples[position] = cv2.mean(cv2.GaussianBlur(cv2.resize(chunks[position], resize, interpolation = cv2.INTER_CUBIC), blur_kernel, cv2.BORDER_DEFAULT))[0]
+
+    ############################################################################
+    # Get the max value from the samples.
+    max_side = max(samples, key = samples.get)
+
+    ############################################################################
+    # Return the final return value.
+    return rotation_map[max_side]
+
+################################################################################
 # The 'rotate_image' function.
 # Source: https://stackoverflow.com/a/58127701/117259
 def rotate_image(image, angle):
@@ -291,6 +306,25 @@ def rotate_image(image, angle):
     return cv2.warpAffine(image, M, (nW, nH))
 
 ################################################################################
+# The 'fatal' function.
+def fatal(msg):
+    error(msg)
+    sys.exit(1)
+
+################################################################################
+# The 'load_cascades' function.
+def load_cascades(data_dir):
+    for k, v in PROFILES.items():
+        v = os.path.join(data_dir, v)
+        try:
+            if not os.path.exists(v):
+                raise cv2.error('no such file')
+            CASCADES[k] = cv2.CascadeClassifier(v)
+        except cv2.error:
+            fatal("cannot load {} from {}".format(k, v))
+
+
+################################################################################
 # Usage Check
 if (len(sys.argv) != 2):
     print ("USAGE: whatsup filename")
@@ -301,6 +335,10 @@ if (len(sys.argv) != 2):
 if not os.path.isfile(sys.argv[-1]):
     print ("File '" + sys.argv[-1] + "' not found.")
     sys.exit(-1)
+
+################################################################################
+# And here's where we invoke it and get the the output.
+load_cascades(DATA_DIRECTORY)
 
 ################################################################################
 # And here's where we invoke it and get the the output.
