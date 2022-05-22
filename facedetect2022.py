@@ -196,6 +196,7 @@ def face_detection(image, filename, extension, biggest=False):
 
         ########################################################################
         # If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
+        print (faces_found)
         if (len(faces_found) > 0):
             rotation = counter * 90
             final = {
