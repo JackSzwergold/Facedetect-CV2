@@ -54,11 +54,8 @@ debug = True
 DATA_DIRECTORY = cv2.data.haarcascades
 CASCADES = {}
 PROFILES = {
-    # 'HAAR_PROFILEFACE': 'haarcascade_profileface.xml',
-    # 'FULLBODY': 'haarcascade_fullbody.xml',
-    # 'HAAR_FRONTALFACE_ALT_TREE': 'haarcascade_frontalface_alt_tree.xml',
     'HAAR_FRONTALFACE_DEFAULT': 'haarcascade_frontalface_default.xml',
-    'HAAR_FRONTALFACE_ALT': 'haarcascade_frontalface_alt.xml',
+    # 'HAAR_FRONTALFACE_ALT': 'haarcascade_frontalface_alt.xml',
     'HAAR_FRONTALFACE_ALT2': 'haarcascade_frontalface_alt2.xml',
 }
 
@@ -122,7 +119,7 @@ def manage_face_detection(biggest=False):
 
         ########################################################################
         # Send the image to the 'face_detection' method.
-        results = face_detection(image_resized, filename, extension, biggest)
+        results = face_detection(image_resized, filename, extension, False)
 
         ########################################################################
         # If we have results return the results.
@@ -142,7 +139,7 @@ def face_detection(image, filename, extension, biggest=False):
     ############################################################################
     # Initialize the counter.
     counter = 0
-    rotation_maximum = 4
+    rotation_max = 4
 
     ############################################################################
     # Set the min and max image size.
@@ -161,7 +158,7 @@ def face_detection(image, filename, extension, biggest=False):
 
     ############################################################################
     # Roll through the rotations to use.
-    while counter < rotation_maximum:
+    while counter < rotation_max:
 
         ########################################################################
         # Try and find faces.
@@ -189,6 +186,7 @@ def face_detection(image, filename, extension, biggest=False):
 
         ########################################################################
         # If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
+        rotation = 0
         if (len(faces_found) > 0):
             rotation = counter * 90
             final = {
@@ -306,7 +304,6 @@ def load_cascades(data_dir):
             CASCADES[k] = cv2.CascadeClassifier(v)
         except cv2.error:
             fatal("cannot load {} from {}".format(k, v))
-
 
 ################################################################################
 # Usage Check
