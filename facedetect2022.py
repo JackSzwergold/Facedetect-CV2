@@ -136,9 +136,19 @@ def manage_face_detection(biggest=False):
 def face_detection(image, filename, extension, biggest=False):
 
     ############################################################################
-    # Initialize the counter.
+    # Initialize the counter stuff.
     counter = 0
     rotation_max = 4
+
+    ############################################################################
+    # Initialize the final values.
+    # final = {
+    #     'x': 0,
+    #     'y': 0,
+    #     'w': 0,
+    #     'h': 0,
+    #     'd': 0,
+    # }
 
     ############################################################################
     # Set the min and max image size.
@@ -198,6 +208,7 @@ def face_detection(image, filename, extension, biggest=False):
                 'd': int(rotation),
             }
             return final
+            break
 
         ########################################################################
         # Rotate the image 90 degrees clockwise.
@@ -341,7 +352,6 @@ image_data_string = ' ' . join(str(value) for value in image_data.values())
 
 ################################################################################
 # Return the final return value.
-# print (rotation)
 print (image_data_string)
 
 ################################################################################
