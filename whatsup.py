@@ -8,7 +8,7 @@
 #    \_/\_/  |_| |_|\__,_|\__|___/\__,_| .__/
 #                                      |_|
 #
-# 2020-04-30: An updated version of Stuporglue's “Whatsup” script. Now uses
+# 2020-04-30: An updated version of Stuporglue’s “Whatsup” script. Now uses
 # Python3 and CV2 methods and conventions.
 #
 # Usage: whatsup [filepath]
@@ -49,94 +49,18 @@ import pathlib
 debug = True
 
 ################################################################################
-# Set the cascade data directory, cascades and profiles.
+# Set the cascade data directory and related stuff.
 DATA_DIRECTORY = cv2.data.haarcascades
-CASCADES = {}
-PROFILES = {
-    'HAAR_PROFILEFACE': 'haarcascade_profileface.xml',
-    'FULLBODY': 'haarcascade_fullbody.xml',
-    'HAAR_FRONTALFACE_ALT_TREE': 'haarcascade_frontalface_alt_tree.xml',
-    'HAAR_FRONTALFACE_DEFAULT': 'haarcascade_frontalface_default.xml',
-    'HAAR_FRONTALFACE_ALT': 'haarcascade_frontalface_alt.xml',
-    'HAAR_FRONTALFACE_ALT2': 'haarcascade_frontalface_alt2.xml',
+CASCADES_TO_USE = {
+    'haarcascade_profileface.xml',
+    'haarcascade_fullbody.xml',
+    'haarcascade_frontalface_alt.xml',
+    'haarcascade_frontalface_default.xml'
 }
 
 ################################################################################
-# The 'manage_face_detection' function.
-def manage_face_detection(biggest=False):
-
-    ############################################################################
-    # Set the filename from the input argument.
-    filename_full = sys.argv[-1]
-
-    ############################################################################
-    # Set the filename and extension.
-    filename = pathlib.Path(filename_full).stem
-    extension = pathlib.Path(filename_full).suffix
-
-    ############################################################################
-    # Set the image path.
-    image_path = os.path.abspath(filename_full)
-
-    ############################################################################
-    # Load the image into the script.
-    image = cv2.imread(image_path)
-
-    ############################################################################
-    # Adjust contrast and brightness: Contrast (1.0-3.0), Brightness (0-100)
-    contrast = 1.25
-    brightness = 0
-    image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
-
-    ############################################################################
-    # Convert the image to grayscale.
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    ############################################################################
-    # Equalize the histogram.
-    image = cv2.equalizeHist(image)
-
-    ########################################################################
-    # Initialize the counter.
-    counter = 2
-    count_minimum = 1
-
-
-    ############################################################################
-    # Roll through the sizes.
-    while counter >= count_minimum:
-
-        ########################################################################
-        # Get the dimensions of the image.
-        image_h, image_w = image.shape[:2]
-
-        ########################################################################
-        # Calculate the new size for the images.
-        resize_h = round(image_h / counter)
-        resize_w = round(image_w / counter)
-
-        ########################################################################
-        # Resize the image.
-        image_resized = cv2.resize(image, (resize_w, resize_h), interpolation = cv2.INTER_CUBIC)
-
-        ########################################################################
-        # Send the image to the 'face_detection' method.
-        results = face_detection(image_resized, filename, extension, biggest)
-
-        ########################################################################
-        # If we have results return the results.
-        if results is not False:
-            return results
-
-        counter = counter - 1
-
-    ############################################################################
-    # If no faces are found, use the brightest side for orientation instead.
-    return bright_side_detection(image, filename, extension)
-
-################################################################################
-# The 'face_detection' function.
-def face_detection(image, filename, extension, biggest=False):
+# The 'detect_faces' function.
+def detect_faces(image, cc, filename, extension, biggest=False):
 
     ############################################################################
     # Initialize the counter.
@@ -163,41 +87,27 @@ def face_detection(image, filename, extension, biggest=False):
     while counter < rotation_maximum:
 
         ########################################################################
-        # Try and find faces.
-        cc1 = CASCADES['HAAR_FRONTALFACE_ALT2']
-        cc2 = CASCADES['HAAR_FRONTALFACE_DEFAULT']
-        faces_found = cc1.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
-        if len(faces_found) == 0:
-            faces_found = cc2.detectMultiScale(image, 1.4, 6, flags, (min_length, min_length), (max_length, max_length))
+        # Attempt to detect some faces.
+        faces_detected = cc.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
 
         ########################################################################
         # TODO: Debugging stuff.
         if debug:
-            for x, y, w, h in faces_found:
-
+            for x, y, w, h in faces_detected:
                 start_point = (x, y)
                 end_point = (x + w, y + h)
                 color = (0, 255, 0)
                 thickness = 5
-
                 image_facebox = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
                 image_facebox = cv2.rectangle(image_facebox, start_point, end_point, color, thickness)
                 image_facebox_filename = filename + '_facebox' + extension
-
                 cv2.imwrite(image_facebox_filename, image_facebox)
 
         ########################################################################
         # If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
-        if (len(faces_found) > 0):
+        if (len(faces_detected) > 0):
             rotation = counter * 90
-            final = {
-                'x': int(faces_found[0][0]),
-                'y': int(faces_found[0][1]),
-                'w': int(faces_found[0][2]),
-                'h': int(faces_found[0][3]),
-                'd': int(rotation),
-            }
-            return final
+            return rotation
 
         ########################################################################
         # Rotate the image 90 degrees clockwise.
@@ -210,8 +120,8 @@ def face_detection(image, filename, extension, biggest=False):
     return False
 
 ################################################################################
-# The 'bright_side_detection' function.
-def bright_side_detection(image, filename, extension):
+# The 'detect_brightest_side' function.
+def detect_brightest_side(image, filename, extension):
 
     ############################################################################
     # Set the ratio used to slice up the image.
@@ -257,6 +167,87 @@ def bright_side_detection(image, filename, extension):
     return rotation_map[max_side]
 
 ################################################################################
+# The 'try_detect' function.
+def try_detect(biggest=False):
+
+    ############################################################################
+    # Set the filename from the input argument.
+    filename_full = sys.argv[-1]
+
+    ############################################################################
+    # Set the filename and extension.
+    filename = pathlib.Path(filename_full).stem
+    extension = pathlib.Path(filename_full).suffix
+
+    ############################################################################
+    # Set the image path.
+    image_path = os.path.abspath(filename_full)
+
+    ############################################################################
+    # Load the image into the script.
+    image = cv2.imread(image_path)
+
+    ############################################################################
+    # Adjust contrast and brightness: Contrast (1.0-3.0), Brightness (0-100)
+    contrast = 1.25
+    brightness = 0
+    image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
+
+    ############################################################################
+    # Convert the image to grayscale.
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    ############################################################################
+    # Equalize the histogram.
+    image = cv2.equalizeHist(image)
+
+    ############################################################################
+    # Roll through the cascades.
+    for THIS_CASCADE in CASCADES_TO_USE:
+
+        ########################################################################
+        # Initialize the counter.
+        counter = 2
+        count_minimum = 1
+
+        ########################################################################
+        # Define the cascade classifier.
+        cc = cv2.CascadeClassifier(os.path.join(DATA_DIRECTORY, THIS_CASCADE))
+
+        ########################################################################
+        # Roll through the sizes.
+        while counter >= count_minimum:
+
+            ####################################################################
+            # Get the dimensions of the image.
+            image_h, image_w = image.shape[:2]
+
+            ####################################################################
+            # Calculate the new size for the images.
+            resize_h = round(image_h / counter)
+            resize_w = round(image_w / counter)
+
+            ####################################################################
+            # Resize the image.
+            image_resized = cv2.resize(image, (resize_w, resize_h), interpolation = cv2.INTER_CUBIC)
+
+            ####################################################################
+            # Send the image to the 'dectectFaces' method.
+            results = detect_faces(image_resized, cc, filename, extension, biggest)
+
+            ####################################################################
+            # If we have results return the results.
+            if results is not False:
+                print (THIS_CASCADE + ': ' + str(resize_w) + 'x' + str(resize_h))
+                return results
+
+            counter = counter - 1
+
+    ############################################################################
+    # If no faces are found, use the brightest side for orientation instead.
+    return detect_brightest_side(image, filename, extension)
+
+################################################################################
 # The 'rotate_image' function.
 # Source: https://stackoverflow.com/a/58127701/117259
 def rotate_image(image, angle):
@@ -289,25 +280,6 @@ def rotate_image(image, angle):
     return cv2.warpAffine(image, M, (nW, nH))
 
 ################################################################################
-# The 'fatal' function.
-def fatal(msg):
-    error(msg)
-    sys.exit(1)
-
-################################################################################
-# The 'load_cascades' function.
-def load_cascades(data_dir):
-    for k, v in PROFILES.items():
-        v = os.path.join(data_dir, v)
-        try:
-            if not os.path.exists(v):
-                raise cv2.error('no such file')
-            CASCADES[k] = cv2.CascadeClassifier(v)
-        except cv2.error:
-            fatal("cannot load {} from {}".format(k, v))
-
-
-################################################################################
 # Usage Check
 if (len(sys.argv) != 2):
     print ("USAGE: whatsup filename")
@@ -320,38 +292,21 @@ if not os.path.isfile(sys.argv[-1]):
     sys.exit(-1)
 
 ################################################################################
-# And here's where we invoke it and get the the output.
-load_cascades(DATA_DIRECTORY)
+# And here’s where we invoke it and get the the output.
+rotation = int(try_detect(True))
 
 ################################################################################
-# And here's where we invoke it and get the the output.
-image_data = manage_face_detection(True)
+# Now, return the output.
+print (rotation)
 
 ################################################################################
-# Get the rotation from the image data.
-rotation = int(image_data['d'])
-
-################################################################################
-# Set the image data string.
-image_data_string = ' ' . join(str(value) for value in image_data.values())
-
-################################################################################
-# Return the final return value.
-# print (rotation)
-print (image_data_string)
-
-################################################################################
-# TODO: Some simple debugging. Don't use Python to do image writing.
+# TODO: Some simple debugging. Don’t use Python to do image writing.
 # Instead use the output with a batch processor like ImageMagick.
 if debug:
     filename = pathlib.Path(sys.argv[-1]).stem
     extension = pathlib.Path(sys.argv[-1]).suffix
     image_path = os.path.abspath(sys.argv[-1])
-
     image = cv2.imread(image_path)
     image = rotate_image(image, rotation)
-
     image_test = filename + '_' + str(rotation) + extension
-    image_data_string = ' ' . join(str(value) for value in image_data.values())
-
     cv2.imwrite(image_test, image)

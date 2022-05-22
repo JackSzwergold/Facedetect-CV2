@@ -47,51 +47,23 @@ import pathlib
 
 ################################################################################
 # Enable debug mode.
-debug = False
+debug = True
 
 ################################################################################
 # Set the cascade data directory, cascades and profiles.
 DATA_DIRECTORY = cv2.data.haarcascades
 CASCADES = {}
 PROFILES = {
-    'HAAR_FRONTALFACE_DEFAULT': 'haarcascade_frontalface_default.xml',
+    'HAAR_FRONTALFACE_ALT': 'haarcascade_frontalface_alt.xml',
     'HAAR_FRONTALFACE_ALT2': 'haarcascade_frontalface_alt2.xml',
+    'HAAR_FRONTALFACE_DEFAULT': 'haarcascade_frontalface_default.xml',
+    'HAAR_FULLBODY': 'haarcascade_fullbody.xml',
+    'HAAR_PROFILEFACE': 'haarcascade_profileface.xml',
 }
 
 ################################################################################
 # The 'manage_face_detection' function.
-def manage_face_detection(biggest=False):
-
-    ############################################################################
-    # Set the filename from the input argument.
-    filename_full = sys.argv[-1]
-
-    ############################################################################
-    # Set the filename and extension.
-    filename = pathlib.Path(filename_full).stem
-    extension = pathlib.Path(filename_full).suffix
-
-    ############################################################################
-    # Set the image path.
-    image_path = os.path.abspath(filename_full)
-
-    ############################################################################
-    # Load the image into the script.
-    image = cv2.imread(image_path)
-
-    ############################################################################
-    # Adjust contrast and brightness: Contrast (1.0-3.0), Brightness (0-100)
-    contrast = 1.25
-    brightness = 0
-    image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
-
-    ############################################################################
-    # Convert the image to grayscale.
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    ############################################################################
-    # Equalize the histogram.
-    image = cv2.equalizeHist(image)
+def manage_face_detection(biggest = False):
 
     ############################################################################
     # Set the defaults to return if actual face detection is false.
@@ -104,23 +76,45 @@ def manage_face_detection(biggest=False):
     }
 
     ############################################################################
-    # Get the dimensions of the image.
-    image_h, image_w = image.shape[:2]
+    # Set an array of contrast values.
+    contrast_values = {
+        1.25,
+        2.5,
+    }
 
     ############################################################################
-    # Send the image to the 'face_detection' method.
-    results = face_detection(image, filename, extension, False)
+    # Set the filename from the input argument.
+    filename_full = sys.argv[-1]
 
     ############################################################################
-    # If we have results, then return the results.
-    if results is not False:
-        return results
-    else:
-        return default
+    # Set the filename and extension.
+    filename = pathlib.Path(filename_full).stem
+    extension = pathlib.Path(filename_full).suffix
+
+    ############################################################################
+    # Set the image path.
+    image_filepath = os.path.abspath(filename_full)
+
+    ############################################################################
+    # Load the image into the script.
+    image_source = cv2.imread(image_filepath)
+
+    ############################################################################
+    # Roll through the contrast values, and try to detect a face.
+    for contrast in contrast_values:
+        brightness = 0
+        image = cv2.convertScaleAbs(image_source, alpha = contrast, beta = brightness)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image = cv2.equalizeHist(image)
+        results = face_detection(image, filename, extension, False)
+        if results is not False:
+            return results
+
+    return default
 
 ################################################################################
 # The 'face_detection' function.
-def face_detection(image, filename, extension, biggest=False):
+def face_detection(image, filename, extension, biggest = False):
 
     ############################################################################
     # Initialize the counter stuff.
@@ -138,8 +132,11 @@ def face_detection(image, filename, extension, biggest=False):
 
     ############################################################################
     # Set the cascades.
-    cc1 = CASCADES['HAAR_FRONTALFACE_ALT2']
-    cc2 = CASCADES['HAAR_FRONTALFACE_DEFAULT']
+    cc_alt = CASCADES['HAAR_FRONTALFACE_ALT']
+    cc_alt2 = CASCADES['HAAR_FRONTALFACE_ALT2']
+    cc_default = CASCADES['HAAR_FRONTALFACE_DEFAULT']
+    cc_fullbody = CASCADES['HAAR_FULLBODY']
+    cc_profileface = CASCADES['HAAR_PROFILEFACE']
 
     ############################################################################
     # Roll through the rotations to use.
@@ -153,9 +150,17 @@ def face_detection(image, filename, extension, biggest=False):
 
         ########################################################################
         # Try and find faces.
-        faces_found = cc1.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+        faces_found = cc_alt2.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
         if len(faces_found) == 0:
-            faces_found = cc2.detectMultiScale(image, 1.4, 6, flags, (min_length, min_length), (max_length, max_length))
+            faces_found = cc_default.detectMultiScale(image, 1.4, 6, flags, (min_length, min_length), (max_length, max_length))
+        if len(faces_found) == 0:
+            faces_found = cc_default.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+        if len(faces_found) == 0:
+            faces_found = cc_alt.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+        if len(faces_found) == 0:
+            faces_found = cc_fullbody.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+        if len(faces_found) == 0:
+            faces_found = cc_profileface.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
 
         ########################################################################
         # TODO: Some simple debugging. Don't use Python to do image writing.
@@ -184,7 +189,6 @@ def face_detection(image, filename, extension, biggest=False):
                 'd': int(rotation),
             }
             return final
-            break
         else:
             image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
             counter = counter + 1
@@ -279,8 +283,8 @@ print (image_data_string)
 if debug:
     filename = pathlib.Path(sys.argv[-1]).stem
     extension = pathlib.Path(sys.argv[-1]).suffix
-    image_path = os.path.abspath(sys.argv[-1])
-    image = cv2.imread(image_path)
+    image_filepath = os.path.abspath(sys.argv[-1])
+    image = cv2.imread(image_filepath)
     image = rotate_image(image, rotation)
     image_test = filename + '_' + str(rotation) + extension
     image_data_string = ' ' . join(str(value) for value in image_data.values())
