@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# __        ___           _
-# \ \      / / |__   __ _| |_ ___ _   _ _ __
-#  \ \ /\ / /| '_ \ / _` | __/ __| | | | '_ \
-#   \ V  V / | | | | (_| | |_\__ \ |_| | |_) |
-#    \_/\_/  |_| |_|\__,_|\__|___/\__,_| .__/
-#                                      |_|
+#  _____                ____       _            _     ____   ___ ____  ____
+# |  ___|_ _  ___ ___  |  _ \  ___| |_ ___  ___| |_  |___ \ / _ \___ \|___ \
+# | |_ / _` |/ __/ _ \ | | | |/ _ \ __/ _ \/ __| __|   __) | | | |__) | __) |
+# |  _| (_| | (_|  __/ | |_| |  __/ ||  __/ (__| |_   / __/| |_| / __/ / __/
+# |_|  \__,_|\___\___| |____/ \___|\__\___|\___|\__| |_____|\___/_____|_____|
 #
-# 2020-04-30: An updated version of Stuporglue's “Whatsup” script. Now uses
-# Python3 and CV2 methods and conventions.
+# 2022-05-31: An updated version of the Face Detect script that also detects
+# image orientation.
 #
-# Usage: whatsup [filepath]
+# Usage: facedetect2022 [filepath]
 #
-# Output: The number of degrees it should be rotated clockwise to orient the faces correctly.
+# Output: The X and Y coordinates as well as the width and height of the detected
+# face as well as the number of degrees it should be rotated clockwise to orient
+# the faces correctly.
 #
 ################################################################################
 
@@ -26,10 +27,10 @@
 # orientation, then rotates it 90 degrees at a time until it has either tried
 # all 4 directions or until it finds a face”
 #
-# Primary source:
+# Primary source that is now dead:
 #     https://stuporglue.org/automatically-orient-scanned-photos-correctly-with-opencv/
 #
-# Two other — now dead — sites are referenced as a source as well:
+# Another two other, now dead, sites are referenced as a source as well:
 #     http://blog.jozilla.net/2008/06/27/fun-with-python-opencv-and-face-detection/
 #     http://opencv.willowgarage.com/documentation/python/core_operations_on_arrays.html#createmat
 #
@@ -53,9 +54,9 @@ debug = True
 DATA_DIRECTORY = cv2.data.haarcascades
 CASCADES = {}
 PROFILES = {
-    'HAAR_PROFILEFACE': 'haarcascade_profileface.xml',
-    'FULLBODY': 'haarcascade_fullbody.xml',
-    'HAAR_FRONTALFACE_ALT_TREE': 'haarcascade_frontalface_alt_tree.xml',
+    # 'HAAR_PROFILEFACE': 'haarcascade_profileface.xml',
+    # 'FULLBODY': 'haarcascade_fullbody.xml',
+    # 'HAAR_FRONTALFACE_ALT_TREE': 'haarcascade_frontalface_alt_tree.xml',
     'HAAR_FRONTALFACE_DEFAULT': 'haarcascade_frontalface_default.xml',
     'HAAR_FRONTALFACE_ALT': 'haarcascade_frontalface_alt.xml',
     'HAAR_FRONTALFACE_ALT2': 'haarcascade_frontalface_alt2.xml',
