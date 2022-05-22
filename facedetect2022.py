@@ -76,6 +76,13 @@ def manage_face_detection(biggest= False):
     }
 
     ############################################################################
+    # Set an array of contrast values.
+    contrast_values = {
+        1.25,
+        2.5,
+    }
+
+    ############################################################################
     # Set the filename from the input argument.
     filename_full = sys.argv[-1]
 
@@ -92,25 +99,18 @@ def manage_face_detection(biggest= False):
     # Load the image into the script.
     image_source = cv2.imread(image_filepath)
 
-    ###########################################################################
-    # Adjust the image for face detection purposes.
-    # contrast = 1.25
-    contrast = 2.5
-    brightness = 0
-    image = cv2.convertScaleAbs(image_source, alpha = contrast, beta = brightness)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    image = cv2.equalizeHist(image)
-
     ############################################################################
-    # Send the image to the 'face_detection' method.
-    results = face_detection(image, filename, extension, False)
+    # Roll through the contrast values, and try to detect a face.
+    for contrast in contrast_values:
+        brightness = 0
+        image = cv2.convertScaleAbs(image_source, alpha = contrast, beta = brightness)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image = cv2.equalizeHist(image)
+        results = face_detection(image, filename, extension, False)
+        if results is not False:
+            return results
 
-    ############################################################################
-    # If we have results, then return the results.
-    if results is not False:
-        return results
-    else:
-        return default
+    return default
 
 ################################################################################
 # The 'face_detection' function.
@@ -166,9 +166,6 @@ def face_detection(image, filename, extension, biggest=False):
         # TODO: Some simple debugging. Don't use Python to do image writing.
         # Instead use the output with a batch processor like ImageMagick.
         if debug:
-            # image_test = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-            # image_test_filename = filename + '_test' + extension
-            # cv2.imwrite(image_test_filename, image_test)
             for x, y, w, h in faces_found:
                 start_point = (x, y)
                 end_point = (x + w, y + h)
@@ -192,7 +189,6 @@ def face_detection(image, filename, extension, biggest=False):
                 'd': int(rotation),
             }
             return final
-            break
         else:
             image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
             counter = counter + 1
