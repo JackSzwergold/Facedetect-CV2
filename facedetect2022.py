@@ -166,6 +166,8 @@ def face_detection(image, filename, extension, biggest=False):
     if biggest:
         flags |= cv2.CASCADE_FIND_BIGGEST_OBJECT
 
+    ############################################################################
+    # Set the cascades.
     cc1 = CASCADES['HAAR_FRONTALFACE_ALT2']
     cc2 = CASCADES['HAAR_FRONTALFACE_DEFAULT']
 
@@ -197,7 +199,6 @@ def face_detection(image, filename, extension, biggest=False):
 
         ########################################################################
         # If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
-        print (faces_found)
         if (len(faces_found) > 0):
             rotation = counter * 90
             final = {
