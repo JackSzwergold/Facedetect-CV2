@@ -122,7 +122,7 @@ def manage_face_detection(biggest=False):
         results = face_detection(image_resized, filename, extension, False)
 
         ########################################################################
-        # If we have results return the results.
+        # If we have results, then return the results.
         if results is not False:
             return results
 
