@@ -129,8 +129,8 @@ def face_detection(image, cc, filename, extension, biggest=False):
 	return False
 
 ################################################################################
-# The 'detect_brightest_side' function.
-def detect_brightest_side(image, filename, extension):
+# The 'bright_side_detection' function.
+def bright_side_detection(image, filename, extension):
 
 	############################################################################
 	# Set the ratio used to slice up the image.
@@ -253,7 +253,7 @@ def manage_face_detection(biggest=False):
 
 	############################################################################
 	# If no faces are found, use the brightest side for orientation instead.
-	return detect_brightest_side(image, filename, extension)
+	return bright_side_detection(image, filename, extension)
 
 ################################################################################
 # The 'rotate_image' function.
