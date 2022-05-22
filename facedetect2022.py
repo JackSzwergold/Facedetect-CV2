@@ -197,7 +197,8 @@ def face_detection(image, filename, extension, biggest=False):
                 cv2.imwrite(image_facebox_filename, image_facebox)
 
         ########################################################################
-        # If a face is found, multiply the counter by 90 to get the number of degrees the image should be rotated.
+        # If a face is found, return the values. Or else, multiply the counter
+        # by 90 to get the number of degrees the image should be rotated.
         if (len(faces_found) > 0):
             rotation = counter * 90
             final = {
@@ -209,20 +210,11 @@ def face_detection(image, filename, extension, biggest=False):
             }
             return final
             break
-
         else:
-
-            ####################################################################
-            # Rotate the image 90 degrees clockwise.
             image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
-
-            ####################################################################
-            # Increment the counter.
             counter = counter + 1
 
     return final
-
-
 
 ################################################################################
 # The 'bright_side_detection' function.
