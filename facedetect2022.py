@@ -47,7 +47,7 @@ import pathlib
 
 ################################################################################
 # Enable debug mode.
-debug = True
+debug = False
 
 ################################################################################
 # Set the cascade data directory, cascades and profiles.
@@ -93,11 +93,6 @@ def manage_face_detection(biggest=False):
     # Equalize the histogram.
     image = cv2.equalizeHist(image)
 
-    ########################################################################
-    # Initialize the counter.
-    counter = 2
-    count_minimum = 1
-
     ############################################################################
     # Set the defaults to return if actual face detection is false.
     default = {
@@ -109,36 +104,18 @@ def manage_face_detection(biggest=False):
     }
 
     ############################################################################
-    # Roll through the sizes.
-    while counter >= count_minimum:
-
-        ########################################################################
-        # Get the dimensions of the image.
-        image_h, image_w = image.shape[:2]
-
-        ########################################################################
-        # Calculate the new size for the images.
-        resize_h = round(image_h / counter)
-        resize_w = round(image_w / counter)
-
-        ########################################################################
-        # Resize the image.
-        image_resized = cv2.resize(image, (resize_w, resize_h), interpolation = cv2.INTER_CUBIC)
-
-        ########################################################################
-        # Send the image to the 'face_detection' method.
-        results = face_detection(image_resized, filename, extension, False)
-
-        ########################################################################
-        # If we have results, then return the results.
-        if results is not False:
-            return results
-
-        counter = counter - 1
+    # Get the dimensions of the image.
+    image_h, image_w = image.shape[:2]
 
     ############################################################################
-    # If no faces are found, use the brightest side for orientation instead.
-    if results is False:
+    # Send the image to the 'face_detection' method.
+    results = face_detection(image, filename, extension, False)
+
+    ############################################################################
+    # If we have results, then return the results.
+    if results is not False:
+        return results
+    else:
         return default
 
 ################################################################################
@@ -149,12 +126,6 @@ def face_detection(image, filename, extension, biggest=False):
     # Initialize the counter stuff.
     counter = 0
     rotation_max = 4
-
-    ############################################################################
-    # Set the min and max image size.
-    side = math.sqrt(image.size)
-    min_length = int(side / 20)
-    max_length = int(side / 2)
 
     ############################################################################
     # Set the CV2 flags.
@@ -175,13 +146,20 @@ def face_detection(image, filename, extension, biggest=False):
     while counter < rotation_max:
 
         ########################################################################
+        # Set the min and max image size.
+        side = math.sqrt(image.size)
+        min_length = int(side / 20)
+        max_length = int(side / 2)
+
+        ########################################################################
         # Try and find faces.
         faces_found = cc1.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
         if len(faces_found) == 0:
             faces_found = cc2.detectMultiScale(image, 1.4, 6, flags, (min_length, min_length), (max_length, max_length))
 
         ########################################################################
-        # TODO: Debugging stuff.
+        # TODO: Some simple debugging. Don't use Python to do image writing.
+        # Instead use the output with a batch processor like ImageMagick.
         if debug:
             for x, y, w, h in faces_found:
                 start_point = (x, y)
