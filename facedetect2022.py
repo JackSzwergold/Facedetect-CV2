@@ -63,7 +63,7 @@ PROFILES = {
 
 ################################################################################
 # The 'manage_face_detection' function.
-def manage_face_detection(biggest= False):
+def manage_face_detection(biggest = False):
 
     ############################################################################
     # Set the defaults to return if actual face detection is false.
@@ -114,7 +114,7 @@ def manage_face_detection(biggest= False):
 
 ################################################################################
 # The 'face_detection' function.
-def face_detection(image, filename, extension, biggest=False):
+def face_detection(image, filename, extension, biggest = False):
 
     ############################################################################
     # Initialize the counter stuff.
