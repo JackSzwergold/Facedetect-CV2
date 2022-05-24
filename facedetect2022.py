@@ -7,7 +7,7 @@
 # |  _| (_| | (_|  __/ | |_| |  __/ ||  __/ (__| |_   / __/| |_| / __/ / __/
 # |_|  \__,_|\___\___| |____/ \___|\__\___|\___|\__| |_____|\___/_____|_____|
 #
-# 2022-05-31: An updated version of the Face Detect script that also detects
+# 2022-05-21: An updated version of the Face Detect script that also detects
 # image orientation.
 #
 # Usage: facedetect2022 [filepath]
@@ -44,6 +44,7 @@ import cv2
 import math
 import numpy as np;
 import pathlib
+import argparse
 
 ################################################################################
 # Enable debug mode.
@@ -52,18 +53,15 @@ debug = True
 ################################################################################
 # Set the cascade data directory, cascades and profiles.
 DATA_DIRECTORY = cv2.data.haarcascades
-CASCADES = {}
-PROFILES = {
-    'HAAR_FRONTALFACE_ALT': 'haarcascade_frontalface_alt.xml',
-    'HAAR_FRONTALFACE_ALT2': 'haarcascade_frontalface_alt2.xml',
-    'HAAR_FRONTALFACE_DEFAULT': 'haarcascade_frontalface_default.xml',
-    'HAAR_FULLBODY': 'haarcascade_fullbody.xml',
-    'HAAR_PROFILEFACE': 'haarcascade_profileface.xml',
+CASCADES_LOADED = {}
+CASCADES_DICTIONARY = {
+    'ALT2': 'haarcascade_frontalface_alt2.xml',
+    'DEFAULT': 'haarcascade_frontalface_default.xml',
 }
 
 ################################################################################
 # The 'manage_face_detection' function.
-def manage_face_detection(biggest = False):
+def manage_face_detection(filename_full, biggest = False):
 
     ############################################################################
     # Set the defaults to return if actual face detection is false.
@@ -81,10 +79,6 @@ def manage_face_detection(biggest = False):
         1.25,
         2.5,
     }
-
-    ############################################################################
-    # Set the filename from the input argument.
-    filename_full = sys.argv[-1]
 
     ############################################################################
     # Set the filename and extension.
@@ -106,7 +100,7 @@ def manage_face_detection(biggest = False):
         image = cv2.convertScaleAbs(image_source, alpha = contrast, beta = brightness)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         image = cv2.equalizeHist(image)
-        results = face_detection(image, filename, extension, False)
+        results = face_detection(image, filename, extension, biggest)
         if results is not False:
             return results
 
@@ -131,14 +125,6 @@ def face_detection(image, filename, extension, biggest = False):
         flags |= cv2.CASCADE_FIND_BIGGEST_OBJECT
 
     ############################################################################
-    # Set the cascades.
-    cc_alt = CASCADES['HAAR_FRONTALFACE_ALT']
-    cc_alt2 = CASCADES['HAAR_FRONTALFACE_ALT2']
-    cc_default = CASCADES['HAAR_FRONTALFACE_DEFAULT']
-    cc_fullbody = CASCADES['HAAR_FULLBODY']
-    cc_profileface = CASCADES['HAAR_PROFILEFACE']
-
-    ############################################################################
     # Roll through the rotations to use.
     while counter < rotation_max:
 
@@ -150,17 +136,11 @@ def face_detection(image, filename, extension, biggest = False):
 
         ########################################################################
         # Try and find faces.
-        faces_found = cc_alt2.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+        faces_found = CASCADES_LOADED['ALT2'].detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
         if len(faces_found) == 0:
-            faces_found = cc_default.detectMultiScale(image, 1.4, 6, flags, (min_length, min_length), (max_length, max_length))
+            faces_found = CASCADES_LOADED['DEFAULT'].detectMultiScale(image, 1.4, 6, flags, (min_length, min_length), (max_length, max_length))
         if len(faces_found) == 0:
-            faces_found = cc_default.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
-        if len(faces_found) == 0:
-            faces_found = cc_alt.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
-        if len(faces_found) == 0:
-            faces_found = cc_fullbody.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
-        if len(faces_found) == 0:
-            faces_found = cc_profileface.detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
+            faces_found = CASCADES_LOADED['DEFAULT'].detectMultiScale(image, 1.3, 6, flags, (min_length, min_length), (max_length, max_length))
 
         ########################################################################
         # TODO: Some simple debugging. Don't use Python to do image writing.
@@ -236,46 +216,46 @@ def fatal(msg):
 ################################################################################
 # The 'load_cascades' function.
 def load_cascades(data_dir):
-    for k, v in PROFILES.items():
+    for k, v in CASCADES_DICTIONARY.items():
         v = os.path.join(data_dir, v)
         try:
             if not os.path.exists(v):
                 raise cv2.error('no such file')
-            CASCADES[k] = cv2.CascadeClassifier(v)
+            CASCADES_LOADED[k] = cv2.CascadeClassifier(v)
         except cv2.error:
             fatal("cannot load {} from {}".format(k, v))
 
 ################################################################################
-# Usage Check
-if (len(sys.argv) != 2):
-    print ("USAGE: whatsup filename")
-    sys.exit(-1)
+# The '__main__' function.
+def __main__():
+    ap = argparse.ArgumentParser(description='A face detector script for batch processing')
+    ap.add_argument('--biggest', action="store_true",
+                    help='Extract only the biggest face')
+    ap.add_argument('file', help='Input image file')
+    args = ap.parse_args()
 
-################################################################################
-# Sanity check
-if not os.path.isfile(sys.argv[-1]):
-    print ("File '" + sys.argv[-1] + "' not found.")
-    sys.exit(-1)
+    ############################################################################
+    # And here's where we invoke it and get the the output.
+    load_cascades(DATA_DIRECTORY)
 
-################################################################################
-# And here's where we invoke it and get the the output.
-load_cascades(DATA_DIRECTORY)
+    ############################################################################
+    # And here's where we invoke it and get the the output.
+    image_data = manage_face_detection(args.file, args.biggest)
 
-################################################################################
-# And here's where we invoke it and get the the output.
-image_data = manage_face_detection(True)
+    ############################################################################
+    # Get the rotation from the image data.
+    rotation = int(image_data['d'])
 
-################################################################################
-# Get the rotation from the image data.
-rotation = int(image_data['d'])
+    ############################################################################
+    # Set the image data string.
+    image_data_string = ' ' . join(str(value) for value in image_data.values())
 
-################################################################################
-# Set the image data string.
-image_data_string = ' ' . join(str(value) for value in image_data.values())
+    ############################################################################
+    # Return the final return value.
+    print (image_data_string)
 
-################################################################################
-# Return the final return value.
-print (image_data_string)
+if __name__ == '__main__':
+    sys.exit(__main__())
 
 ################################################################################
 # TODO: Some simple debugging. Don't use Python to do image writing.
