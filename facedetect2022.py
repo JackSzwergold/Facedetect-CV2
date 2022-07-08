@@ -96,14 +96,18 @@ def manage_face_detection(filename_full, biggest = False):
     ############################################################################
     # Roll through the contrast values, and try to detect a face.
     for contrast in contrast_values:
+        resize_factor = 1
+        blur_factor = 0
         brightness = int(round(255 * (1 - contrast) / 2))
         image = cv2.convertScaleAbs(image_source, alpha=contrast, beta=brightness)
         image = cv2.addWeighted(image, contrast, image, 0, brightness)
-        image = cv2.resize(image, None, fx=3, fy=3, interpolation = cv2.INTER_LINEAR)
-        image = cv2.blur(image, (10, 10))
+        if (resize_factor > 1):
+            image = cv2.resize(image, None, fx=resize_factor, fy=resize_factor, interpolation = cv2.INTER_LINEAR)
+        if (blur_factor > 0):
+            image = cv2.blur(image, (blur_factor, blur_factor))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         image = cv2.equalizeHist(image)
-        results = face_detection(image, filename, extension, biggest)
+        results = face_detection(image, filename, extension, resize_factor, biggest)
         if results is not False:
             return results
 
@@ -111,7 +115,7 @@ def manage_face_detection(filename_full, biggest = False):
 
 ################################################################################
 # The 'face_detection' function.
-def face_detection(image, filename, extension, biggest = False):
+def face_detection(image, filename, extension, resize_factor = 1, biggest = False):
 
     ############################################################################
     # Initialize the counter stuff.
@@ -165,10 +169,10 @@ def face_detection(image, filename, extension, biggest = False):
         if (len(faces_found) > 0):
             rotation = counter * 90
             final = {
-                'x': int(faces_found[0][0]),
-                'y': int(faces_found[0][1]),
-                'w': int(faces_found[0][2]),
-                'h': int(faces_found[0][3]),
+                'x': int(faces_found[0][0]/resize_factor),
+                'y': int(faces_found[0][1]/resize_factor),
+                'w': int(faces_found[0][2]/resize_factor),
+                'h': int(faces_found[0][3]/resize_factor),
                 'd': int(rotation),
             }
             return final
