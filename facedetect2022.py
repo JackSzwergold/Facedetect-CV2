@@ -99,6 +99,8 @@ def manage_face_detection(filename_full, biggest = False):
         brightness = int(round(255 * (1 - contrast) / 2))
         image = cv2.convertScaleAbs(image_source, alpha=contrast, beta=brightness)
         image = cv2.addWeighted(image, contrast, image, 0, brightness)
+        image = cv2.resize(image, None, fx=3, fy=3, interpolation = cv2.INTER_LINEAR)
+        image = cv2.blur(image, (10, 10))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         image = cv2.equalizeHist(image)
         results = face_detection(image, filename, extension, biggest)
