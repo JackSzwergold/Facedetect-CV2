@@ -48,7 +48,7 @@ import argparse
 
 ################################################################################
 # Enable debug mode.
-debug = True
+debug = False
 
 ################################################################################
 # Set the cascade data directory, cascades and profiles.
@@ -96,13 +96,17 @@ def manage_face_detection(filename_full, biggest = False):
     ############################################################################
     # Roll through the contrast values, and try to detect a face.
     for contrast in contrast_values:
-        resize_factor = 1
+        resize_percent = 105
+        resize_factor = (resize_percent / 100)
         blur_factor = 0
         brightness = int(round(255 * (1 - contrast) / 2))
-        image = cv2.convertScaleAbs(image_source, alpha=contrast, beta=brightness)
-        image = cv2.addWeighted(image, contrast, image, 0, brightness)
-        if (resize_factor > 1):
-            image = cv2.resize(image, None, fx=resize_factor, fy=resize_factor, interpolation = cv2.INTER_LINEAR)
+        image = cv2.addWeighted(image_source, contrast, image_source, 0, brightness)
+        image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
+        if (resize_percent > 100):
+            width = int(image.shape[1] * resize_factor)
+            height = int(image.shape[0] * resize_factor)
+            dimensions = (width, height)
+            image = cv2.resize(image, dimensions, interpolation = cv2.INTER_LINEAR)
         if (blur_factor > 0):
             image = cv2.blur(image, (blur_factor, blur_factor))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
