@@ -48,7 +48,7 @@ import argparse
 
 ################################################################################
 # Enable debug mode.
-debug = False
+debug = True
 
 ################################################################################
 # Set the cascade data directory, cascades and profiles.
