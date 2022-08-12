@@ -114,7 +114,7 @@ def manage_face_detection(filename_full, biggest = False):
         border_color = [255, 255, 255]
         border_size = int(0.09 * image.shape[1])
         image = cv2.copyMakeBorder(image, 0, 0, border_size, border_size, cv2.BORDER_CONSTANT, None, border_color)
-        results = face_detection(image, filename, extension, resize_factor, biggest)
+        results = face_detection(image, filename, extension, resize_factor, border_size, biggest)
         if results is not False:
             return results
 
@@ -122,7 +122,7 @@ def manage_face_detection(filename_full, biggest = False):
 
 ################################################################################
 # The 'face_detection' function.
-def face_detection(image, filename, extension, resize_factor = 1, biggest = False):
+def face_detection(image, filename, extension, resize_factor = 1, border_size = 0, biggest = False):
 
     ############################################################################
     # Initialize the counter stuff.
@@ -176,10 +176,10 @@ def face_detection(image, filename, extension, resize_factor = 1, biggest = Fals
         if (len(faces_found) > 0):
             rotation = counter * 90
             final = {
-                'x': int(faces_found[0][0]/resize_factor),
-                'y': int(faces_found[0][1]/resize_factor),
-                'w': int(faces_found[0][2]/resize_factor),
-                'h': int(faces_found[0][3]/resize_factor),
+                'x': int((faces_found[0][0] - border_size) / resize_factor),
+                'y': int(faces_found[0][1] / resize_factor),
+                'w': int(faces_found[0][2] / resize_factor),
+                'h': int(faces_found[0][3] / resize_factor),
                 'd': int(rotation),
             }
             return final
