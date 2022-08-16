@@ -1,4 +1,4 @@
-# Whatsup CV2
+# Facedetect CV2
 
 ## Prerequisites
 
@@ -9,4 +9,3 @@ If you get an error like this:
 That simply means that the Python OpenCV stuff is not installed. Install it like this:
 
 	pip3 install opencv-python
-
