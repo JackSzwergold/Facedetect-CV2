@@ -1,7 +1,12 @@
 # Whatsup CV2
 
-A repository for my development and refactoring of the Whatsup photo orientation Python script from OpenCV to OpenCV2.
+## Prerequisites
 
-Source script found here:
+If you get an error like this:
 
-	https://stuporglue.org/automatically-orient-scanned-photos-correctly-with-opencv/
+	ModuleNotFoundError: No module named 'cv2'
+
+That simply means that the Python OpenCV stuff is not installed. Install it like this:
+
+	pip3 install opencv-python
+
