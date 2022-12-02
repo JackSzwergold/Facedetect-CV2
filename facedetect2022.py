@@ -112,7 +112,8 @@ def manage_face_detection(filename_full, biggest = False):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         image = cv2.equalizeHist(image)
         border_color = int(image[int(image.shape[0]/4),0])
-        border_size = int(0.09 * image.shape[1])
+        # border_size = int(0.09 * image.shape[1])
+        border_size = int(0.50 * image.shape[1])
         image = cv2.copyMakeBorder(image, 0, 0, border_size, border_size, cv2.BORDER_CONSTANT, None, border_color)
         results = face_detection(image, filename, extension, resize_factor, border_size, biggest)
         if results is not False:
