@@ -111,11 +111,7 @@ def manage_face_detection(filename_full, biggest = False):
             image = cv2.blur(image, (blur_factor, blur_factor))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         image = cv2.equalizeHist(image)
-        border_color = int(image[int(image.shape[0]/4),0])
-        # border_size = int(0.09 * image.shape[1])
-        border_size = int(0.50 * image.shape[1])
-        image = cv2.copyMakeBorder(image, 0, 0, border_size, border_size, cv2.BORDER_CONSTANT, None, border_color)
-        results = face_detection(image, filename, extension, resize_factor, border_size, biggest)
+        results = face_detection(image, filename, extension, resize_factor, biggest)
         if results is not False:
             return results
 
@@ -123,12 +119,13 @@ def manage_face_detection(filename_full, biggest = False):
 
 ################################################################################
 # The 'face_detection' function.
-def face_detection(image, filename, extension, resize_factor = 1, border_size = 0, biggest = False):
+def face_detection(image, filename, extension, resize_factor = 1, biggest = False):
 
     ############################################################################
     # Initialize the counter stuff.
     counter = 0
     rotation_max = 4
+    border_size = 0
 
     ############################################################################
     # Set the CV2 flags.
@@ -186,6 +183,9 @@ def face_detection(image, filename, extension, resize_factor = 1, border_size = 
             return final
         else:
             image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+            border_color = int(image[int(image.shape[0]/4),0])
+            border_size = int(0.50 * image.shape[1])
+            image = cv2.copyMakeBorder(image, 0, 0, border_size, border_size, cv2.BORDER_CONSTANT, None, border_color)
             counter = counter + 1
 
     return False
