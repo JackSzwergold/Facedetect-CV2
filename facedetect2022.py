@@ -96,7 +96,7 @@ def manage_face_detection(filename_full, biggest = False):
     ############################################################################
     # Roll through the contrast values, and try to detect a face.
     for contrast in contrast_values:
-        resize_percent = 105
+        resize_percent = 200
         resize_factor = (resize_percent / 100)
         blur_factor = 0
         brightness = int(round(255 * (1 - contrast) / 2))
