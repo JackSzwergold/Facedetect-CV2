@@ -96,7 +96,7 @@ def manage_face_detection(filename_full, biggest = False):
     ############################################################################
     # Roll through the contrast values, and try to detect a face.
     for contrast in contrast_values:
-        resize_height = 900
+        resize_height = 1800
         blur_factor = 0
         brightness = int(round(255 * (1 - contrast) / 2))
         image = cv2.addWeighted(image_source, contrast, image_source, 0, brightness)
