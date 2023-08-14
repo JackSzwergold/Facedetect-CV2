@@ -243,8 +243,8 @@ def face_detection(image_source, filename, extension, resize_factor = 1, biggest
         if (len(faces_found) > 0):
             rotation = counter * 90
             final = {
-                'x': int((faces_found[0][0] - border_size) / resize_factor),
-                'y': int(faces_found[0][1] / resize_factor),
+                'x': int((faces_found[0][0] - border_x_size) / resize_factor),
+                'y': int((faces_found[0][1] - border_y_size) / resize_factor),
                 'w': int(faces_found[0][2] / resize_factor),
                 'h': int(faces_found[0][3] / resize_factor),
                 'd': int(rotation),
