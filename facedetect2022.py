@@ -242,8 +242,9 @@ def face_detection(image_source, filename, extension, resize_factor = 1, biggest
         else:
             image_source = cv2.rotate(image_source, cv2.ROTATE_90_CLOCKWISE)
             border_color = int(image_source[int(image.shape[0]/4),0])
-            border_size = int(0.50 * image_source.shape[1])
-            image = cv2.copyMakeBorder(image_source, 0, 0, border_size, border_size, cv2.BORDER_CONSTANT, None, border_color)
+            border_x_size = int(0.50 * image_source.shape[1])
+            border_y_size = int(0.10 * image_source.shape[1])            
+            image = cv2.copyMakeBorder(image_source, 0, border_y_size, border_x_size, border_x_size, cv2.BORDER_CONSTANT, None, border_color)
             counter = counter + 1
 
     return False
