@@ -191,12 +191,24 @@ def face_detection(image_source, filename, extension, resize_factor = 1, biggest
         flags |= cv2.CASCADE_FIND_BIGGEST_OBJECT
 
     ############################################################################
-    # If we are looking for the biggest face, set that flag.
+    # Set a copy of the image source.
     image = image_source
 
     ############################################################################
     # Roll through the rotations to use.
     while counter < rotation_max:
+
+        ########################################################################
+        # Set borders for better face detection.
+        border_color = int(image_source[int(image_source.shape[0]/4),0])
+        border_x_size = int(0.50 * image_source.shape[1])
+        border_y_size = int(0.10 * image_source.shape[1])            
+        image = cv2.copyMakeBorder(image_source, 0, border_y_size, border_x_size, border_x_size, cv2.BORDER_CONSTANT, None, border_color)
+
+                ########################################################################
+
+        # Rotation debugging.
+        # cv2.imwrite(filename + '_' + str(counter) + '_test.jpg', image)
 
         ########################################################################
         # Set the min and max image size.
@@ -241,10 +253,6 @@ def face_detection(image_source, filename, extension, resize_factor = 1, biggest
             return final
         else:
             image_source = cv2.rotate(image_source, cv2.ROTATE_90_CLOCKWISE)
-            border_color = int(image_source[int(image.shape[0]/4),0])
-            border_x_size = int(0.50 * image_source.shape[1])
-            border_y_size = int(0.10 * image_source.shape[1])            
-            image = cv2.copyMakeBorder(image_source, 0, border_y_size, border_x_size, border_x_size, cv2.BORDER_CONSTANT, None, border_color)
             counter = counter + 1
 
     return False
