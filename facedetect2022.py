@@ -205,8 +205,7 @@ def face_detection(image_source, filename, extension, resize_factor = 1, biggest
         border_y_size = int(0.10 * image_source.shape[1])            
         image = cv2.copyMakeBorder(image_source, 0, border_y_size, border_x_size, border_x_size, cv2.BORDER_CONSTANT, None, border_color)
 
-                ########################################################################
-
+        ########################################################################
         # Rotation debugging.
         # cv2.imwrite(filename + '_' + str(counter) + '_test.jpg', image)
 
