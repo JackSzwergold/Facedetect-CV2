@@ -107,7 +107,7 @@ def manage_face_detection(filename_full, biggest = False):
             width = int(image.shape[1] * resize_factor)
             height = int(image.shape[0] * resize_factor)
             dimensions = (width, height)
-            image = cv2.resize(image, dimensions, interpolation = cv2.INTER_LINEAR)
+            image = cv2.resize(image, dimensions, interpolation = cv2.INTER_CUBIC)
         if (blur_factor > 0):
             image = cv2.blur(image, (blur_factor, blur_factor))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
