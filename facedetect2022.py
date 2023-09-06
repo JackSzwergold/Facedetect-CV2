@@ -99,6 +99,18 @@ def manage_face_detection(filename_full, biggest = False):
         resize_height = 1800
         blur_factor = 0
         brightness = int(round(255 * (1 - contrast) / 2))
+
+        ########################################################################
+        # Crop images for better face detection.
+        crop_factor = 20
+        crop_x = 0
+        crop_y = 0
+        if (crop_factor > 0):
+            crop_x = int(image_source.shape[1] / crop_factor)
+            crop_y = int(image_source.shape[0] / crop_factor)    
+            adjust_x = int(crop_x * (crop_factor - 1))
+            adjust_y = int(int(crop_y * (crop_factor - 1)) * 2)
+            image_source = image_source[0:adjust_y, crop_x:adjust_x]
         image = cv2.addWeighted(image_source, contrast, image_source, 0, brightness)
         image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
         image = simplest_cb(image, 50)
@@ -112,7 +124,7 @@ def manage_face_detection(filename_full, biggest = False):
             image = cv2.blur(image, (blur_factor, blur_factor))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         image = cv2.equalizeHist(image)
-        results = face_detection(image, filename, extension, resize_factor, biggest)
+        results = face_detection(image, crop_x, crop_y, filename, extension, resize_factor, biggest)
         if results is not False:
             return results
 
@@ -173,7 +185,7 @@ def simplest_cb(img, percent):
 
 ################################################################################
 # The 'face_detection' function.
-def face_detection(image_source, filename, extension, resize_factor = 1, biggest = False):
+def face_detection(image_source, crop_x, crop_y, filename, extension, resize_factor = 1, biggest = False):
 
     ############################################################################
     # Initialize the counter stuff.
@@ -202,12 +214,8 @@ def face_detection(image_source, filename, extension, resize_factor = 1, biggest
         # Set borders for better face detection.
         border_color = int(image_source[int(image_source.shape[0]/4),0])
         border_x_size = int(0.50 * image_source.shape[1])
-        border_y_size = int(0.10 * image_source.shape[1])            
+        border_y_size = int(0.10 * image_source.shape[0])
         image = cv2.copyMakeBorder(image_source, 0, border_y_size, border_x_size, border_x_size, cv2.BORDER_CONSTANT, None, border_color)
-
-        ########################################################################
-        # Rotation debugging.
-        # cv2.imwrite(filename + '_' + str(counter) + '_test.jpg', image)
 
         ########################################################################
         # Set the min and max image size.
@@ -242,11 +250,15 @@ def face_detection(image_source, filename, extension, resize_factor = 1, biggest
         # by 90 to get the number of degrees the image should be rotated.
         if (len(faces_found) > 0):
             rotation = counter * 90
+            final_x = int(int((faces_found[0][0] - border_x_size) + crop_x) / resize_factor)
+            final_y = int((faces_found[0][1] - border_y_size) / resize_factor)
+            final_w = int(faces_found[0][2] / resize_factor)
+            final_h = int(faces_found[0][3] / resize_factor)
             final = {
-                'x': int((faces_found[0][0] - border_x_size) / resize_factor),
-                'y': int((faces_found[0][1] - border_y_size) / resize_factor),
-                'w': int(faces_found[0][2] / resize_factor),
-                'h': int(faces_found[0][3] / resize_factor),
+                'x': final_x,
+                'y': final_y,
+                'w': final_w,
+                'h': final_h,
                 'd': int(rotation),
             }
             return final
