@@ -111,7 +111,6 @@ def manage_face_detection(filename_full, biggest = False):
             adjust_x = int(crop_x * (crop_factor - 1))
             adjust_y = int(crop_y * crop_factor)
             image_source = image_source[0:adjust_y, crop_x:adjust_x]
-            cv2.imwrite(filename + '_foo' + extension, image_source)
         image = cv2.addWeighted(image_source, contrast, image_source, 0, brightness)
         image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
         image = simplest_cb(image, 50)
