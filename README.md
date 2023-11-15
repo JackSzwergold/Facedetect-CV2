@@ -19,5 +19,4 @@ Might need to specify a version:
 I don’t know why. But these work on Apple Silicon.
 
 	pip3 install opencv-python==4.5.5.64 --verbose
-	pip3 install opencv-python==4.8.1.78 --verbose
 	python3 -m pip install opencv-python	
