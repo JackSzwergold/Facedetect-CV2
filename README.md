@@ -6,7 +6,13 @@ If you get an error like this:
 
 	ModuleNotFoundError: No module named 'cv2'
 
-That simply means that the Python OpenCV stuff is not installed. Install it like this:
+That simply means that the Python OpenCV stuff is not installed. Install specific versions of `numpy` and `opencv-python` like this:
+
+	pip3 install --break-system-packages -r requirements.txt
+
+***
+
+Or install `opencv-python` directly like this:
 
 	pip3 install opencv-python --verbose
 
