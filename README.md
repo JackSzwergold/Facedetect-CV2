@@ -19,9 +19,7 @@ Or install `opencv-python` directly like this:
 Might need to specify a version:
 
 	pip3 install --break-system-packages opencv-python==4.1.2.30 --verbose
-
-### More Notes
-
-I don’t know why. But these work on Apple Silicon.
+	pip3 install --break-system-packages opencv-python==4.3.0.38 --verbose
 
 	pip3 install --break-system-packages opencv-python==4.5.5.64 --verbose
+	pip3 install --break-system-packages opencv-python==4.11.0.86 --verbose
