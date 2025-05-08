@@ -190,7 +190,8 @@ def face_detection(image_source, crop_x, crop_y, filename, extension, resize_fac
     ############################################################################
     # Initialize the counter stuff.
     counter = 0
-    rotation_max = 4
+    # rotation_max = 4
+    rotation_max = 1
     border_size = 0
 
     ############################################################################
